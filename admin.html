@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLDEX EA - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0f1e 0%, #1a1f2f 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-box {
+            background: linear-gradient(135deg, #1a1f2f, #0a0f1e);
+            padding: 60px;
+            border-radius: 30px;
+            border: 3px solid #FFD700;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .login-box h1 {
+            color: #FFD700;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 2px solid #4a90e2;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 18px;
+        }
+        
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            background: #FFD700;
+            color: #0a0f1e;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-box button:hover {
+            background: #4a90e2;
+            color: white;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a90e2;
+        }
+        
+        .admin-title {
+            font-size: 36px;
+            color: #FFD700;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff4444;
+            transform: scale(1.05);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(74, 144, 226, 0.1);
+            border: 1px solid #4a90e2;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: #FFD700;
+        }
+        
+        .stat-label {
+            color: #b0c4de;
+            margin-top: 10px;
+        }
+        
+        .section-title {
+            color: #FFD700;
+            margin: 40px 0 20px;
+            font-size: 28px;
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .orders-table th {
+            background: #4a90e2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .orders-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        .orders-table tr:hover {
+            background: rgba(74, 144, 226, 0.2);
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .status-paid {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .status-delivered {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 2px;
+            font-weight: bold;
+        }
+        
+        .btn-paid {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-delivered {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .marketing-section {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 40px;
+        }
+        
+        .code-generator {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .code-generator input, .code-generator select {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #4a90e2;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            min-width: 150px;
+        }
+        
+        .code-generator button {
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .code-list {
+            margin-top: 20px;
+        }
+        
+        .code-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .code-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .code-actions button {
+            padding: 5px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .btn-toggle {
+            background: #4a90e2;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .manual-order {
+            background: rgba(34, 197, 94, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 40px;
+            border: 2px solid #22c55e;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .code-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .code-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <h1>👑 GOLDEX EA</h1>
+            <h2 style="color: #4a90e2; margin-bottom: 30px;">Admin Panel</h2>
+            <input type="password" id="adminPassword" placeholder="Enter Password" onkeypress="if(event.key==='Enter') checkLogin()">
+            <button onclick="checkLogin()">Login</button>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="admin-title">👑 GOLDEX EA - Admin Dashboard</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid" id="statsContainer">
+                <!-- Filled by JavaScript -->
+            </div>
+            
+            <!-- Orders Table -->
+            <h2 class="section-title">📋 Recent Orders</h2>
+            <table class="orders-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Package</th>
+                        <th>Amount</th>
+                        <th>Coupon</th>
+                        <th>Marketer</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+            
+            <!-- Marketing Codes Section -->
+            <div class="marketing-section">
+                <h2 class="section-title">🔑 Marketer Codes</h2>
+                
+                <div class="code-generator">
+                    <input type="text" id="marketerName" placeholder="Marketer Name">
+                    <input type="number" id="discountPercent" placeholder="Discount %" min="1" max="100">
+                    <button onclick="generateMarketerCode()">Generate Code</button>
+                </div>
+                
+                <div id="codesList" class="code-list">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Manual Order Entry -->
+            <div class="manual-order">
+                <h2 class="section-title">➕ Add Manual Order</h2>
+                
+                <div class="code-generator">
+                    <input type="text" id="manualName" placeholder="Customer Name">
+                    <input type="text" id="manualPhone" placeholder="Phone Number">
+                    <input type="email" id="manualEmail" placeholder="Email">
+                    <select id="manualPackage">
+                        <option value="lifetime">Lifetime - $499</option>
+                        <option value="monthly">Monthly - $79</option>
+                    </select>
+                    <input type="text" id="manualMarketer" placeholder="Marketer Code (optional)">
+                    <button onclick="addManualOrder()" style="background: #22c55e;">Add Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin Password
+        const ADMIN_PASSWORD = "GOLDEX2026"; // غير كلمة المرور هنا
+        
+        // Data Storage
+        let orders = JSON.parse(localStorage.getItem('goldex_orders')) || [];
+        let coupons = JSON.parse(localStorage.getItem('goldex_coupons')) || [];
+        
+        // Default marketers
+        const defaultMarketers = [
+            { code: 'BASEM10', marketer: 'Basem TP', discount: 10, active: true },
+            { code: 'AHMED20', marketer: 'Ahmed Ali', discount: 20, active: true },
+            { code: 'MOHAMED15', marketer: 'Mohamed Hassan', discount: 15, active: true }
+        ];
+        
+        if (coupons.length === 0) {
+            coupons = defaultMarketers;
+            localStorage.setItem('goldex_coupons', JSON.stringify(coupons));
+        }
+        
+        const prices = {
+            lifetime: 499,
+            monthly: 79
+        };
+        
+        // Login Functions
+        function checkLogin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                updateDashboard();
+            } else {
+                document.getElementById('loginError').innerHTML = '❌ Incorrect password';
+            }
+        }
+        
+        function logout() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('loginError').innerHTML = '';
+        }
+        
+        // Update Dashboard
+        function updateDashboard() {
+            updateStats();
+            updateOrdersTable();
+            updateCodesList();
+        }
+        
+        function updateStats() {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            const paidOrders = orders.filter(o => o.status === 'paid').length;
+            const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+            
+            const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.finalPrice), 0);
+            
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalOrders}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${totalRevenue.toFixed(2)}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${pendingOrders}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${paidOrders}</div>
+                    <div class="stat-label">Paid</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${deliveredOrders}</div>
+                    <div class="stat-label">Delivered</div>
+                </div>
+            `;
+        }
+        
+        function updateOrdersTable() {
+            let html = '';
+            orders.reverse().forEach(order => {
+                let statusClass = 'status-pending';
+                let statusText = 'Pending';
+                
+                if (order.status === 'paid') {
+                    statusClass = 'status-paid';
+                    statusText = 'Paid';
+                } else if (order.status === 'delivered') {
+                    statusClass = 'status-delivered';
+                    statusText = 'Delivered';
+                }
+                
+                html += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.customer}</td>
+                        <td>${order.phone}<br><small>${order.email}</small></td>
+                        <td>${order.package}</td>
+                        <td>$${order.finalPrice}</td>
+                        <td>${order.couponCode}</td>
+                        <td>${order.marketer}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${new Date(order.date).toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn btn-paid" onclick="updateOrderStatus('${order.id}', 'paid')">💰 Paid</button>
+                            <button class="action-btn btn-delivered" onclick="updateOrderStatus('${order.id}', 'delivered')">📦 Delivered</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('ordersBody').innerHTML = html || '<tr><td colspan="10" style="text-align:center; padding:50px;">No orders yet</td></tr>';
+        }
+        
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                localStorage.setItem('goldex_orders', JSON.stringify(orders));
+                updateDashboard();
+            }
+        }
+        
+        function updateCodesList() {
+            let html = '<h3 style="color:#FFD700; margin-bottom:15px;">Active Marketing Codes:</h3>';
+            
+            coupons.forEach(c => {
+                html += `
+                    <div class="code-item">
+                        <div class="code-info">
+                            <span><strong style="color:#FFD700;">${c.code}</strong></span>
+                            <span>${c.marketer}</span>
+                            <span style="color:#4ade80;">${c.discount}%</span>
+                            <span style="color:${c.active ? '#4ade80' : '#ff6b6b'};">${c.active ? 'Active' : 'Inactive'}</span>
+                        </div>
+                        <div class="code-actions">
+                            <button class="btn-toggle" onclick="toggleCoupon('${c.code}')">Toggle</button>
+                            <button class="btn-delete" onclick="deleteCoupon('${c.code}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('codesList').innerHTML = html;
+        }
+        
+        function generateMarketerCode() {
+            const name = document.getElementById('marketerName').value.trim();
+            const discount = document.getElementById('discountPercent').value;
+            
+            if (!name || !discount) {
+                alert('Please enter marketer name and discount percentage');
+                return;
+            }
+            
+            const code = name.substring(0, 3).toUpperCase() + Math.floor(Math.random() * 1000) + discount;
+            
+            coupons.push({
+                code: code,
+                marketer: name,
+                discount: parseInt(discount),
+                active: true
+            });
+            
+            localStorage.setItem('goldex_coupons', JSON.stringify(coupons));
+            
+            document.getElementById('marketerName').value = '';
+            document.getElementById('discountPercent').value = '';
+            
+            updateCodesList();
+            alert(`✅ Code generated: ${code}`);
+        }
+        
+        function toggleCoupon(code) {
+            const coupon = coupons.find(c => c.code === code);
+            if (coupon) {
+                coupon.active = !coupon.active;
+                localStorage.setItem('goldex_coupons', JSON.stringify(coupons));
+                updateCodesList();
+            }
+        }
+        
+        function deleteCoupon(code) {
+            if (confirm('Are you sure you want to delete this code?')) {
+                coupons = coupons.filter(c => c.code !== code);
+                localStorage.setItem('goldex_coupons', JSON.stringify(coupons));
+                updateCodesList();
+            }
+        }
+        
+        function addManualOrder() {
+            const name = document.getElementById('manualName').value;
+            const phone = document.getElementById('manualPhone').value;
+            const email = document.getElementById('manualEmail').value;
+            const packageType = document.getElementById('manualPackage').value;
+            const marketerCode = document.getElementById('manualMarketer').value.toUpperCase();
+            
+            if (!name || !phone) {
+                alert('Please enter customer name and phone');
+                return;
+            }
+            
+            let finalPrice = prices[packageType];
+            let marketerName = 'Manual';
+            let discount = 0;
+            let couponCode = 'None';
+            
+            if (marketerCode) {
+                const coupon = coupons.find(c => c.code === marketerCode && c.active);
+                if (coupon) {
+                    finalPrice = finalPrice * (1 - coupon.discount/100);
+                    marketerName = coupon.marketer;
+                    discount = coupon.discount;
+                    couponCode = marketerCode;
+                }
+            }
+            
+            const order = {
+                id: 'MAN' + Date.now() + Math.floor(Math.random() * 1000),
+                date: new Date().toISOString(),
+                customer: name,
+                email: email || 'manual@order.com',
+                phone: phone,
+                telegram: '',
+                package: packageType === 'lifetime' ? 'Lifetime' : 'Monthly',
+                originalPrice: prices[packageType],
+                finalPrice: finalPrice.toFixed(2),
+                discount: discount,
+                couponCode: couponCode,
+                marketer: marketerName,
+                status: 'paid'
+            };
+            
+            orders.push(order);
+            localStorage.setItem('goldex_orders', JSON.stringify(orders));
+            
+            document.getElementById('manualName').value = '';
+            document.getElementById('manualPhone').value = '';
+            document.getElementById('manualEmail').value = '';
+            document.getElementById('manualMarketer').value = '';
+            
+            updateDashboard();
+            alert('✅ Manual order added successfully');
+        }
+        
+        // Check if already logged in (optional)
+        window.onload = function() {
+            // You can add auto-login logic here if needed
+        };
+    </script>
+</body>
+</html>
