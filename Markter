@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>GOLDEX EA — نظام التداول الاحترافي فائق السرعة HFT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Cinzel:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --dark:#07090F; --dark2:#0C1220; --dark3:#141B2D; --dark4:#1C2540;
+            --gold:#C9A959; --gold-l:#E2C98A; --gold-d:#9B7B30;
+            --text:#EFF3FA; --text2:#B0BFDA; --text3:#6B7C9A;
+            --success:#2E8B5E;
+            --grad-gold:linear-gradient(135deg,#C9A959,#E2C98A,#9B7B30);
+            --shadow-g:0 0 40px rgba(201,169,89,.25);
+            --r:18px;
+        }
+        html { scroll-behavior:smooth; }
+        body { background:var(--dark); color:var(--text); font-family:'Cairo',sans-serif; overflow-x:hidden; line-height:1.7; }
+        body.en { direction:ltr; font-family:'Poppins','Cairo',sans-serif; }
+        body.en .lang-ar, body.ar .lang-en { display:none !important; }
+
+        /* BG */
+        .bg-anim { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+        .bg-anim::before { content:''; position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle,rgba(201,169,89,.06),transparent 70%); top:-200px; right:-100px; animation:drift 20s ease-in-out infinite; filter:blur(60px); }
+        .bg-anim::after  { content:''; position:absolute; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(44,62,90,.1),transparent 70%); bottom:10%; left:-80px; animation:drift 28s ease-in-out infinite reverse; filter:blur(80px); }
+        @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(25px,-25px) scale(1.06)} 70%{transform:translate(-15px,18px) scale(.96)} }
+
+        .wrap { max-width:1280px; margin:0 auto; padding:0 clamp(16px,4vw,52px); position:relative; z-index:2; }
+
+        /* LANG BTN */
+        #langBtn { position:fixed; top:16px; left:16px; z-index:1000; background:rgba(12,18,32,.88); border:1px solid rgba(201,169,89,.35); color:var(--gold-l); padding:9px 20px; border-radius:50px; font-family:'Poppins','Cairo',sans-serif; font-size:13px; font-weight:600; cursor:pointer; backdrop-filter:blur(14px); letter-spacing:.05em; transition:all .3s; }
+        #langBtn:hover { background:var(--gold); color:var(--dark); }
+        #cartBtn { display:none; position:fixed; top:16px; right:16px; z-index:1000; background:rgba(12,18,32,.88); border:1px solid rgba(201,169,89,.35); color:var(--gold-l); width:42px; height:42px; border-radius:10px; font-size:20px; cursor:pointer; backdrop-filter:blur(14px); align-items:center; justify-content:center; transition:all .3s; }
+        #cartBtn:hover { background:var(--gold); color:var(--dark); }
+
+        /* HEADER */
+        header { position:sticky; top:0; z-index:100; background:rgba(7,9,15,.88); backdrop-filter:blur(22px); border-bottom:1px solid rgba(201,169,89,.1); }
+        .nav-inner { display:flex; align-items:center; justify-content:space-between; padding:15px clamp(16px,4vw,52px); gap:16px; }
+        .logo { font-family:'Cinzel',serif; font-size:clamp(18px,3vw,28px); font-weight:900; background:var(--grad-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:.08em; flex-shrink:0; line-height:1; }
+        .logo small { display:block; font-size:.38em; color:var(--text3); -webkit-text-fill-color:var(--text3); letter-spacing:.2em; font-family:'Cairo','Poppins',sans-serif; font-weight:400; margin-top:4px; }
+        .hft-badge { background:rgba(201,169,89,.08); border:1px solid rgba(201,169,89,.3); color:var(--gold); padding:9px 20px; border-radius:50px; font-size:clamp(11px,1.4vw,14px); font-weight:700; letter-spacing:.06em; white-space:nowrap; flex-shrink:0; overflow:hidden; position:relative; }
+        .hft-badge::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(201,169,89,.12),transparent); animation:shine 5s infinite; transform:translateX(-100%); }
+        @keyframes shine { to { transform:translateX(200%); } }
+
+        /* HERO */
+        .hero { padding:clamp(80px,12vw,140px) 0 clamp(60px,8vw,100px); position:relative; overflow:hidden; }
+        .hero-eyebrow { display:inline-flex; align-items:center; gap:10px; background:rgba(201,169,89,.08); border:1px solid rgba(201,169,89,.25); color:var(--gold-l); padding:8px 20px; border-radius:50px; font-size:clamp(12px,1.5vw,15px); font-weight:600; letter-spacing:.06em; margin-bottom:26px; }
+        .hero-title { font-size:clamp(32px,7vw,76px); font-weight:900; line-height:1.08; margin-bottom:26px; text-shadow:0 8px 30px rgba(0,0,0,.5); }
+        .hero-title .gw { background:linear-gradient(135deg,#C9A959,#F5E6BE,#B58F3F); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-sub { font-size:clamp(14px,2vw,20px); color:var(--text2); max-width:620px; margin-bottom:40px; line-height:1.8; }
+        .hero-btns { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+        .btn-p { background:var(--grad-gold); color:var(--dark); padding:clamp(14px,2vw,20px) clamp(28px,4vw,54px); border-radius:50px; font-size:clamp(15px,2vw,21px); font-weight:800; border:none; cursor:pointer; text-decoration:none; display:inline-block; box-shadow:0 12px 30px -8px rgba(201,169,89,.5); transition:all .4s; letter-spacing:.04em; position:relative; overflow:hidden; }
+        .btn-p::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); transition:left .6s; }
+        .btn-p:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 20px 40px -8px rgba(201,169,89,.65); }
+        .btn-p:hover::before { left:100%; }
+        .btn-s { background:rgba(201,169,89,.07); border:1px solid rgba(201,169,89,.3); color:var(--gold-l); padding:clamp(14px,2vw,20px) clamp(20px,3vw,38px); border-radius:50px; font-size:clamp(13px,1.8vw,17px); font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; transition:all .4s; }
+        .btn-s:hover { background:rgba(201,169,89,.15); transform:translateY(-3px); }
+
+        /* STATS */
+        .stats-bar { background:rgba(28,37,64,.55); border:1px solid rgba(201,169,89,.12); border-radius:20px; padding:clamp(18px,3vw,32px); display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:clamp(36px,5vw,66px) 0; backdrop-filter:blur(12px); }
+        .stat-item { text-align:center; padding:6px 4px; }
+        .stat-num { font-size:clamp(20px,3.5vw,40px); font-weight:900; background:var(--grad-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+        .stat-label { color:var(--text3); font-size:clamp(11px,1.2vw,14px); margin-top:5px; }
+
+        /* NOTICE */
+        .notice { background:linear-gradient(135deg,rgba(28,37,64,.8),rgba(12,18,32,.9)); border:1px solid rgba(201,169,89,.25); border-radius:var(--r); padding:clamp(22px,4vw,38px); margin:clamp(26px,5vw,56px) 0; position:relative; overflow:hidden; }
+        .notice::before { content:''; position:absolute; top:0; right:0; width:4px; height:100%; background:var(--grad-gold); }
+        body.en .notice::before { right:auto; left:0; }
+        .notice h3 { color:var(--gold); font-size:clamp(17px,2.5vw,25px); margin-bottom:10px; font-weight:700; }
+        .notice p { color:var(--text2); font-size:clamp(13px,1.6vw,16px); line-height:1.8; }
+
+        /* SECTION TITLE */
+        .sec-title { font-size:clamp(24px,4.5vw,50px); font-weight:800; text-align:center; margin-bottom:clamp(36px,5vw,65px); }
+        .sec-title::after { content:''; display:block; width:90px; height:3px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold-l),var(--gold),transparent); margin:16px auto 0; border-radius:2px; }
+
+        /* FEATURES */
+        .features { padding:clamp(56px,8vw,108px) 0; }
+        .feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr)); gap:clamp(18px,3vw,36px); }
+        .feat-card { background:rgba(28,37,64,.45); border:1px solid rgba(201,169,89,.12); border-radius:var(--r); padding:clamp(22px,3vw,38px); transition:all .45s; position:relative; overflow:hidden; }
+        .feat-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at top right,rgba(201,169,89,.09),transparent 65%); opacity:0; transition:opacity .45s; }
+        .feat-card:hover { transform:translateY(-10px); border-color:rgba(201,169,89,.4); box-shadow:0 20px 40px -15px rgba(201,169,89,.2); }
+        .feat-card:hover::before { opacity:1; }
+        .feat-icon { font-size:clamp(36px,5vw,54px); margin-bottom:18px; filter:drop-shadow(0 6px 12px rgba(201,169,89,.3)); }
+        .feat-title { font-size:clamp(16px,2vw,23px); color:var(--gold); margin-bottom:12px; font-weight:700; }
+        .feat-card p { color:var(--text2); font-size:clamp(13px,1.4vw,15px); line-height:1.75; }
+
+        /* ══ SCREENSHOTS WITH REAL IMAGES ══ */
+        .screenshots { padding:clamp(56px,8vw,108px) 0; background:rgba(12,18,32,.5); }
+        .ss-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:clamp(18px,3vw,34px); }
+        .ss-card { background:rgba(28,37,64,.55); border:1px solid rgba(201,169,89,.12); border-radius:var(--r); overflow:hidden; transition:all .45s; }
+        .ss-card:hover { transform:translateY(-8px); border-color:var(--gold); box-shadow:var(--shadow-g); }
+
+        /* ── الصورة الفعلية ── */
+        .ss-img-wrap {
+            width:100%; height:clamp(160px,20vw,260px);
+            position:relative; overflow:hidden;
+            background:linear-gradient(135deg,#1C2540,#141B2D);
+        }
+        .ss-img-wrap img {
+            width:100%; height:100%; object-fit:cover;
+            transition:transform .5s ease;
+            display:block;
+        }
+        .ss-card:hover .ss-img-wrap img { transform:scale(1.06); }
+
+        /* placeholder إذا لم تكن الصورة موجودة */
+        .ss-placeholder {
+            width:100%; height:100%;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            color:var(--gold); font-size:clamp(13px,1.8vw,18px); font-weight:600;
+            gap:10px; position:absolute; inset:0;
+        }
+        .ss-placeholder-icon { font-size:clamp(30px,5vw,48px); }
+
+        .ss-cap { padding:18px; text-align:center; color:var(--text2); font-size:clamp(12px,1.3vw,14px); border-top:1px solid rgba(201,169,89,.1); }
+
+        /* TIMELINE */
+        .how-wrap { padding:clamp(56px,8vw,108px) 0; }
+        .timeline { display:flex; flex-direction:column; max-width:700px; margin:0 auto; }
+        .tl-item { display:flex; gap:22px; padding-bottom:30px; position:relative; }
+        .tl-item:not(:last-child)::after { content:''; position:absolute; top:46px; right:22px; width:2px; height:calc(100% - 32px); background:linear-gradient(180deg,rgba(201,169,89,.4),rgba(201,169,89,.05)); }
+        body.en .tl-item:not(:last-child)::after { right:auto; left:22px; }
+        .tl-num { width:46px; height:46px; border-radius:50%; flex-shrink:0; background:var(--grad-gold); color:var(--dark); display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; box-shadow:0 4px 16px rgba(201,169,89,.35); position:relative; z-index:1; }
+        .tl-body { flex:1; padding-top:8px; }
+        .tl-body h4 { color:var(--gold-l); font-size:clamp(15px,2vw,19px); margin-bottom:6px; font-weight:700; }
+        .tl-body p { color:var(--text2); font-size:clamp(13px,1.4vw,15px); }
+
+        /* PRICING */
+        .pricing { padding:clamp(56px,8vw,108px) 0; }
+        .p-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr)); gap:clamp(22px,4vw,48px); max-width:880px; margin:0 auto; }
+        .p-card { background:linear-gradient(135deg,rgba(28,37,64,.75),rgba(12,18,32,.9)); border:1px solid rgba(201,169,89,.2); border-radius:clamp(20px,3vw,36px); padding:clamp(26px,4vw,48px) clamp(20px,3vw,38px); text-align:center; cursor:pointer; transition:all .45s; position:relative; overflow:hidden; }
+        .p-card.featured { border-color:rgba(201,169,89,.5); background:linear-gradient(135deg,rgba(44,62,90,.85),rgba(20,27,43,.95)); }
+        .popular-tag { position:absolute; top:20px; right:-32px; background:var(--grad-gold); color:var(--dark); padding:6px 38px; font-size:clamp(10px,1.2vw,12px); font-weight:700; transform:rotate(45deg); box-shadow:0 4px 12px rgba(0,0,0,.3); white-space:nowrap; }
+        body.en .popular-tag { right:auto; left:-32px; transform:rotate(-45deg); }
+        .p-card:hover { transform:translateY(-12px); box-shadow:0 24px 48px -16px rgba(201,169,89,.3); border-color:var(--gold); }
+        .p-title { font-size:clamp(18px,2.5vw,28px); color:var(--gold); margin-bottom:18px; font-weight:800; }
+        .p-orig { text-decoration:line-through; color:var(--text3); font-size:clamp(15px,2vw,21px); margin-bottom:7px; }
+        .p-price { font-size:clamp(40px,6vw,62px); font-weight:900; line-height:1; margin-bottom:26px; }
+        .p-price small { font-size:clamp(13px,1.5vw,18px); color:var(--text3); font-weight:400; }
+        .p-feats { list-style:none; margin-bottom:28px; }
+        .p-feats li { padding:11px 0; border-bottom:1px solid rgba(201,169,89,.1); color:var(--text2); font-size:clamp(13px,1.4vw,15px); text-align:right; }
+        body.en .p-feats li { text-align:left; }
+        .p-feats li:last-child { border:none; }
+        .sel-btn { width:100%; background:var(--grad-gold); color:var(--dark); padding:clamp(12px,1.8vw,17px); border:none; border-radius:50px; font-size:clamp(14px,1.6vw,17px); font-weight:800; cursor:pointer; transition:all .35s; font-family:inherit; }
+        .sel-btn:hover { opacity:.88; transform:translateY(-2px); }
+
+        /* COUPON */
+        .coupon-sec { background:rgba(28,37,64,.45); border:1px solid rgba(201,169,89,.25); border-radius:var(--r); padding:clamp(26px,4vw,48px); margin:clamp(28px,5vw,56px) 0; text-align:center; }
+        .coupon-sec h3 { color:var(--gold); font-size:clamp(17px,2.5vw,27px); margin-bottom:18px; }
+        .c-row { display:flex; gap:12px; max-width:540px; margin:0 auto; flex-wrap:wrap; justify-content:center; }
+        .c-row input { flex:1; min-width:160px; padding:clamp(12px,1.8vw,17px) 20px; border-radius:50px; border:1px solid rgba(201,169,89,.3); background:rgba(7,9,15,.7); color:var(--text); font-size:clamp(13px,1.5vw,17px); text-align:center; letter-spacing:2px; transition:all .3s; font-family:inherit; }
+        .c-row input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 16px rgba(201,169,89,.22); }
+        .c-row button { padding:clamp(12px,1.8vw,17px) clamp(20px,3vw,36px); border-radius:50px; border:none; background:var(--grad-gold); color:var(--dark); font-weight:700; font-size:clamp(13px,1.5vw,17px); cursor:pointer; transition:all .35s; font-family:inherit; white-space:nowrap; }
+        .c-row button:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(201,169,89,.4); }
+        .c-msg { margin-top:14px; font-weight:600; font-size:clamp(13px,1.4vw,15px); }
+        .ok { color:#3A9B74; } .err { color:#C45C5C; }
+
+        /* ══ LEAD FORM (Marketer Version) ══ */
+        .lead-wrap {
+            background:linear-gradient(135deg,rgba(28,37,64,.7),rgba(12,18,32,.9));
+            border:1px solid rgba(201,169,89,.18); border-radius:clamp(20px,3vw,40px);
+            padding:clamp(26px,5vw,68px); margin:clamp(28px,5vw,56px) 0;
+        }
+        .lead-intro {
+            text-align:center; margin-bottom:clamp(28px,4vw,48px);
+            padding:clamp(20px,3vw,36px); background:rgba(201,169,89,.04);
+            border:1px solid rgba(201,169,89,.12); border-radius:14px;
+        }
+        .lead-intro .icon { font-size:clamp(36px,5vw,52px); margin-bottom:14px; }
+        .lead-intro h3 { color:var(--gold-l); font-size:clamp(18px,2.5vw,26px); font-weight:700; margin-bottom:10px; }
+        .lead-intro p { color:var(--text2); font-size:clamp(13px,1.5vw,16px); line-height:1.8; }
+
+        .f-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .f-group { }
+        .f-group.full { grid-column:1/-1; }
+        .f-group label { display:block; margin-bottom:8px; color:var(--gold-l); font-weight:600; font-size:clamp(12px,1.4vw,14px); letter-spacing:.04em; }
+        .f-group input, .f-group select, .f-group textarea { width:100%; padding:clamp(11px,1.6vw,16px) clamp(14px,2vw,20px); border-radius:12px; border:1px solid rgba(201,169,89,.2); background:rgba(7,9,15,.65); color:var(--text); font-size:clamp(13px,1.4vw,15px); transition:all .3s; font-family:inherit; }
+        .f-group input:focus, .f-group select:focus, .f-group textarea:focus { outline:none; border-color:var(--gold); box-shadow:0 0 14px rgba(201,169,89,.2); }
+        .f-group select option { background:var(--dark3); color:var(--text); }
+        .f-group textarea { resize:vertical; min-height:90px; }
+
+        /* PREFERRED CONTACT METHOD */
+        .contact-pref { display:flex; gap:12px; flex-wrap:wrap; margin-top:4px; }
+        .pref-option { flex:1; min-width:120px; }
+        .pref-option input[type="radio"] { display:none; }
+        .pref-option label {
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            padding:12px 16px; border-radius:12px; border:1px solid rgba(201,169,89,.2);
+            background:rgba(7,9,15,.5); color:var(--text2); cursor:pointer;
+            transition:all .3s; font-size:clamp(13px,1.4vw,14px); font-weight:600;
+        }
+        .pref-option input[type="radio"]:checked + label {
+            border-color:var(--gold); background:rgba(201,169,89,.1); color:var(--gold-l);
+            box-shadow:0 0 14px rgba(201,169,89,.15);
+        }
+
+        /* BEST TIME */
+        .time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .time-option input[type="radio"] { display:none; }
+        .time-option label { display:flex; align-items:center; justify-content:center; padding:10px 8px; border-radius:10px; border:1px solid rgba(201,169,89,.15); background:rgba(7,9,15,.5); color:var(--text2); cursor:pointer; transition:all .3s; font-size:clamp(11px,1.3vw,13px); font-weight:600; text-align:center; }
+        .time-option input[type="radio"]:checked + label { border-color:var(--gold); background:rgba(201,169,89,.1); color:var(--gold-l); }
+
+        /* SUBMIT BUTTON */
+        .lead-submit { width:100%; background:var(--grad-gold); color:var(--dark); padding:clamp(15px,2.5vw,21px); border:none; border-radius:50px; font-size:clamp(17px,2.5vw,24px); font-weight:800; cursor:pointer; margin-top:28px; letter-spacing:.04em; box-shadow:0 12px 28px -8px rgba(201,169,89,.4); transition:all .4s; font-family:inherit; }
+        .lead-submit:hover { transform:translateY(-4px); box-shadow:0 20px 40px -8px rgba(201,169,89,.6); }
+
+        /* SUCCESS MESSAGE */
+        .success-msg {
+            display:none; text-align:center; padding:clamp(28px,5vw,60px);
+            background:rgba(46,139,94,.06); border:1px solid rgba(46,139,94,.25);
+            border-radius:var(--r); margin-top:24px;
+        }
+        .success-msg .s-icon { font-size:clamp(48px,8vw,72px); margin-bottom:16px; }
+        .success-msg h3 { color:#3A9B74; font-size:clamp(20px,3vw,30px); margin-bottom:12px; font-weight:800; }
+        .success-msg p { color:var(--text2); font-size:clamp(14px,1.6vw,17px); line-height:1.8; }
+        .success-msg .order-id { display:inline-block; background:rgba(201,169,89,.1); border:1px solid rgba(201,169,89,.3); color:var(--gold-l); padding:8px 24px; border-radius:50px; font-size:clamp(13px,1.4vw,15px); font-weight:700; margin-top:14px; letter-spacing:.05em; }
+
+        /* TRUST BADGES */
+        .trust-row { display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(12px,2vw,22px); margin:clamp(28px,4vw,46px) 0; }
+        .trust-badge { display:flex; align-items:center; gap:10px; background:rgba(28,37,64,.5); border:1px solid rgba(201,169,89,.15); border-radius:50px; padding:12px 22px; color:var(--text2); font-size:clamp(12px,1.4vw,14px); font-weight:600; }
+        .trust-badge span.ic { font-size:18px; }
+
+        /* PDF */
+        .pdf-wrap { text-align:center; margin:clamp(28px,5vw,56px) 0; }
+        .pdf-btn { background:rgba(28,37,64,.7); border:1px solid rgba(201,169,89,.3); color:var(--text); padding:clamp(14px,2vw,20px) clamp(28px,5vw,56px); border-radius:60px; text-decoration:none; display:inline-block; font-size:clamp(15px,2vw,22px); font-weight:700; transition:all .4s; backdrop-filter:blur(8px); }
+        .pdf-btn:hover { background:var(--grad-gold); color:var(--dark); transform:translateY(-4px); box-shadow:var(--shadow-g); }
+
+        /* FOOTER */
+        footer { padding:clamp(38px,6vw,68px) 0; border-top:1px solid rgba(201,169,89,.1); text-align:center; color:var(--text3); font-size:clamp(12px,1.3vw,14px); }
+        footer p+p { margin-top:12px; }
+
+        /* ADMIN */
+        .admin-dot { position:fixed; bottom:8px; left:8px; width:24px; height:24px; opacity:.07; z-index:999; }
+        .admin-dot a { display:block; width:100%; height:100%; background:var(--gold); border-radius:50%; }
+
+        /* REVEAL */
+        .reveal { opacity:0; transform:translateY(26px); transition:opacity .65s ease, transform .65s ease; }
+        .reveal.vis { opacity:1; transform:none; }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width:1024px) {
+            .f-grid { grid-template-columns:1fr; }
+            .f-group.full { grid-column:1; }
+            .time-grid { grid-template-columns:repeat(2,1fr); }
+        }
+        @media (max-width:768px) {
+            #cartBtn { display:flex; }
+            .hft-badge { display:none; }
+            .stats-bar { grid-template-columns:repeat(2,1fr); }
+            .p-grid { grid-template-columns:1fr; max-width:440px; }
+        }
+        @media (max-width:520px) {
+            .hero-btns { flex-direction:column; align-items:stretch; }
+            .btn-p, .btn-s { text-align:center; }
+            .c-row { flex-direction:column; }
+            .c-row input, .c-row button { width:100%; }
+            .contact-pref { flex-direction:column; }
+            .stats-bar { grid-template-columns:repeat(2,1fr); gap:10px; padding:14px; }
+            .tl-item:not(:last-child)::after { display:none; }
+            .time-grid { grid-template-columns:1fr 1fr; }
+        }
+    </style>
+</head>
+<body class="ar" dir="rtl">
+    <div class="bg-anim"></div>
+    <div class="admin-dot"><a href="admin.html" title="admin"></a></div>
+    <button id="langBtn" onclick="toggleLang()"><span class="lang-ar">English</span><span class="lang-en">العربية</span></button>
+    <button id="cartBtn" onclick="document.getElementById('lead-section').scrollIntoView({behavior:'smooth'})">🛒</button>
+
+    <!-- HEADER -->
+    <header>
+        <div class="nav-inner">
+            <div class="logo">GOLDEX EA<small><span class="lang-ar">نظام تداول احترافي</span><span class="lang-en">Professional Trading System</span></small></div>
+            <div class="hft-badge">HFT SYSTEM ⚡ CCI &amp; MACD</div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="wrap">
+            <div class="hero-eyebrow">⚡ <span class="lang-ar">الإصدار 4.21 — متاح الآن</span><span class="lang-en">Version 4.21 — Now Available</span></div>
+            <h1 class="hero-title"><span class="gw">GOLDEX EA</span><br><span class="lang-ar">المستشار الخبير للتداول الذكي</span><span class="lang-en">Expert Advisor for Smart Trading</span></h1>
+            <p class="hero-sub"><span class="lang-ar">استراتيجية متطورة تجمع قوة CCI مع دقة MACD، ونظام إعادة دخول ذكي لتحقيق أقصى ربحية على الذهب.</span><span class="lang-en">Advanced strategy combining CCI power with MACD precision, plus a smart re-entry system to maximize gold trading profits.</span></p>
+            <div class="hero-btns">
+                <a href="#lead-section" class="btn-p">🚀 <span class="lang-ar">سجّل اهتمامك الآن</span><span class="lang-en">Register Your Interest</span></a>
+                <a href="#features" class="btn-s">📖 <span class="lang-ar">استكشف المميزات</span><span class="lang-en">Explore Features</span></a>
+            </div>
+            <div class="stats-bar reveal">
+                <div class="stat-item"><div class="stat-num">4.21</div><div class="stat-label"><span class="lang-ar">أحدث إصدار</span><span class="lang-en">Latest Version</span></div></div>
+                <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label"><span class="lang-ar">دعم فني</span><span class="lang-en">Support</span></div></div>
+                <div class="stat-item"><div class="stat-num">HFT</div><div class="stat-label"><span class="lang-ar">سرعة فائقة</span><span class="lang-en">High Speed</span></div></div>
+                <div class="stat-item"><div class="stat-num">USDT</div><div class="stat-label">TRC20</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOTICE + PDF -->
+    <div class="wrap">
+        <div class="notice reveal">
+            <h3>📢 <span class="lang-ar">تنويه هام — نظام التجهيز الفردي</span><span class="lang-en">Important Notice — Individual Preparation</span></h3>
+            <p><span class="lang-ar">كل نسخة تُجهَّز بشكل فردي خلال إجازة السوق. التشفير والتجهيز يستغرقان <strong>24–48 ساعة</strong> بعد تأكيد الدفع. سيتواصل معك أحد أعضاء فريقنا لإتمام العملية.</span><span class="lang-en">Each copy is individually prepared during market break. Encryption takes <strong>24–48 hours</strong> after payment. A team member will contact you to complete the process.</span></p>
+        </div>
+        <div class="pdf-wrap reveal">
+            <a href="#" onclick="downloadPDF()" class="pdf-btn">📥 <span class="lang-ar">تحميل دليل المستخدم — PDF</span><span class="lang-en">Download User Manual — PDF</span></a>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">المميزات الحصرية</span><span class="lang-en">Exclusive Features</span></h2>
+            <div class="feat-grid">
+                <div class="feat-card reveal"><div class="feat-icon">🎯</div><div class="feat-title">CCI + MACD Strategy</div><p><span class="lang-ar">فلتر مزدوج يقلل الإشارات الكاذبة ويرفع دقة الدخول لأعلى مستوى.</span><span class="lang-en">Dual filter reduces false signals and raises entry accuracy to the highest level.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">🔄</div><div class="feat-title">Smart Re-Entry</div><p><span class="lang-ar">ميزة حصرية — يعيد الدخول تلقائيًا إذا استمرت الإشارة قوية بعد الإغلاق.</span><span class="lang-en">Exclusive — auto re-enters if signal stays strong after trade closure.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">🛡️</div><div class="feat-title">Advanced Risk Mgmt</div><p><span class="lang-ar">Trailing Stop 3 مراحل + Break Even تلقائي + وقف خسارة متحرك لحماية رأس المال.</span><span class="lang-en">3-stage Trailing Stop + Auto Break Even + Moving Stop Loss to protect capital.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">📊</div><div class="feat-title">Integrated Dashboard</div><p><span class="lang-ar">لوحة تحكم شاملة للصفقات والإحصائيات وحالة الترخيص مع إشعارات تليجرام فورية.</span><span class="lang-en">Full dashboard for trades, statistics, license status, and instant Telegram alerts.</span></p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ SCREENSHOTS WITH REAL IMAGES ══════════ -->
+    <!--
+    ┌─────────────────────────────────────────────────────────────┐
+    │  لإضافة صورك الحقيقية:                                      │
+    │  1. ضع ملفات الصور في نفس مجلد هذا الـ HTML                │
+    │  2. غيّر اسم الملف في src=""  مثلاً: src="screen1.png"     │
+    │  3. إذا الصورة غير موجودة يظهر placeholder تلقائياً        │
+    └─────────────────────────────────────────────────────────────┘
+    -->
+    <section class="screenshots">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">صور النظام الحية</span><span class="lang-en">Live System Screenshots</span></h2>
+            <div class="ss-grid">
+
+                <!-- صورة 1 -->
+                <div class="ss-card reveal">
+                    <div class="ss-img-wrap">
+                        <!-- ضع اسم ملف صورتك هنا -->
+                        <img src="screen_buy_signal.png" alt="BUY Signal XAUUSD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="ss-placeholder" style="display:none">
+                            <div class="ss-placeholder-icon">📈</div>
+                            <div>BUY Signal — XAUUSD</div>
+                        </div>
+                    </div>
+                    <div class="ss-cap"><span class="lang-ar">إشارة شراء واضحة مع أهداف ربح محددة</span><span class="lang-en">Clear buy signal with defined profit targets</span></div>
+                </div>
+
+                <!-- صورة 2 -->
+                <div class="ss-card reveal">
+                    <div class="ss-img-wrap">
+                        <img src="screen_dashboard.png" alt="Dashboard Overview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="ss-placeholder" style="display:none">
+                            <div class="ss-placeholder-icon">📊</div>
+                            <div>Dashboard Overview</div>
+                        </div>
+                    </div>
+                    <div class="ss-cap"><span class="lang-ar">لوحة تحكم شاملة بجميع المعلومات</span><span class="lang-en">Comprehensive dashboard with all info</span></div>
+                </div>
+
+                <!-- صورة 3 -->
+                <div class="ss-card reveal">
+                    <div class="ss-img-wrap">
+                        <img src="screen_reentry.png" alt="Smart Re-Entry" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="ss-placeholder" style="display:none">
+                            <div class="ss-placeholder-icon">🔄</div>
+                            <div>Smart Re-Entry System</div>
+                        </div>
+                    </div>
+                    <div class="ss-cap"><span class="lang-ar">نظام إعادة الدخول بعد إغلاق الصفقة</span><span class="lang-en">Re-entry system post trade closure</span></div>
+                </div>
+
+                <!-- صورة 4 -->
+                <div class="ss-card reveal">
+                    <div class="ss-img-wrap">
+                        <img src="screen_telegram.png" alt="Telegram Alerts" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="ss-placeholder" style="display:none">
+                            <div class="ss-placeholder-icon">📱</div>
+                            <div>Telegram Alerts</div>
+                        </div>
+                    </div>
+                    <div class="ss-cap"><span class="lang-ar">إشعارات فورية على التليجرام لكل صفقة</span><span class="lang-en">Instant Telegram alerts for every trade</span></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-wrap">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">كيف يعمل النظام؟</span><span class="lang-en">How Does It Work?</span></h2>
+            <div class="timeline">
+                <div class="tl-item reveal"><div class="tl-num">1</div><div class="tl-body"><h4><span class="lang-ar">ظهور الإشارة</span><span class="lang-en">Signal Generation</span></h4><p><span class="lang-ar">CCI يتجاوز 100 أو -100 مع تأكيد MACD على نفس الاتجاه.</span><span class="lang-en">CCI crosses 100/-100 with MACD confirmation in the same direction.</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">2</div><div class="tl-body"><h4><span class="lang-ar">التأكيد والانتظار</span><span class="lang-en">Confirmation</span></h4><p><span class="lang-ar">انتظار إغلاق الشمعة للتحقق من قوة الإشارة وتجنب الكاذبة.</span><span class="lang-en">Wait for candle close to verify signal strength and avoid false entries.</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">3</div><div class="tl-body"><h4><span class="lang-ar">الدخول الذكي</span><span class="lang-en">Smart Entry</span></h4><p><span class="lang-ar">فتح الصفقة تلقائيًا مع SL وTP محسوبَين بدقة.</span><span class="lang-en">Automatic trade opening with precisely calculated SL and TP.</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">4</div><div class="tl-body"><h4><span class="lang-ar">الإدارة والحماية</span><span class="lang-en">Management</span></h4><p><span class="lang-ar">تفعيل Trailing Stop تلقائيًا ونقل SL لنقطة التعادل لحماية الأرباح.</span><span class="lang-en">Auto Trailing Stop and SL to breakeven to lock profits.</span></p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="pricing">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">خطط الأسعار</span><span class="lang-en">Pricing Plans</span></h2>
+            <div class="coupon-sec reveal">
+                <h3>🎟️ <span class="lang-ar">لديك كود خصم؟</span><span class="lang-en">Have a Discount Code?</span></h3>
+                <div class="c-row">
+                    <input type="text" id="couponCode" placeholder="أدخل الكود / Enter code" maxlength="20">
+                    <button onclick="applyCoupon()"><span class="lang-ar">تطبيق</span><span class="lang-en">Apply</span></button>
+                </div>
+                <div id="cMsg" class="c-msg"></div>
+            </div>
+            <div class="p-grid">
+                <div class="p-card featured reveal" onclick="selectPkg('lifetime',this)">
+                    <div class="popular-tag">MOST POPULAR</div>
+                    <div class="p-title">💎 <span class="lang-ar">ترخيص مدى الحياة</span><span class="lang-en">Lifetime License</span></div>
+                    <div class="p-orig">$499</div>
+                    <div class="p-price">$<span id="lifetimeFinal">499</span><small> USDT</small></div>
+                    <ul class="p-feats">
+                        <li><span class="lang-ar">✅ نسخة مشفرة مدى الحياة</span><span class="lang-en">✅ Encrypted lifetime copy</span></li>
+                        <li><span class="lang-ar">✅ تحديثات مجانية للأبد</span><span class="lang-en">✅ Free updates forever</span></li>
+                        <li><span class="lang-ar">✅ دعم فني مميز 24/7</span><span class="lang-en">✅ Premium 24/7 support</span></li>
+                        <li><span class="lang-ar">✅ كلمة مرور سرية للتجديد</span><span class="lang-en">✅ Secret renewal password</span></li>
+                    </ul>
+                    <button class="sel-btn"><span class="lang-ar">اختر هذه الباقة ✓</span><span class="lang-en">Select This Plan ✓</span></button>
+                </div>
+                <div class="p-card reveal" onclick="selectPkg('monthly',this)">
+                    <div class="p-title">📅 <span class="lang-ar">اشتراك شهري</span><span class="lang-en">Monthly Subscription</span></div>
+                    <div class="p-orig">$79</div>
+                    <div class="p-price">$<span id="monthlyFinal">79</span><small> USDT/<span class="lang-ar">شهر</span><span class="lang-en">mo</span></small></div>
+                    <ul class="p-feats">
+                        <li><span class="lang-ar">✅ نسخة مشفرة لمدة شهر</span><span class="lang-en">✅ Encrypted 1-month copy</span></li>
+                        <li><span class="lang-ar">✅ تجديد تلقائي سهل</span><span class="lang-en">✅ Easy auto renewal</span></li>
+                        <li><span class="lang-ar">✅ دعم فني كامل</span><span class="lang-en">✅ Full technical support</span></li>
+                        <li><span class="lang-ar">✅ جميع المميزات مضمَّنة</span><span class="lang-en">✅ All features included</span></li>
+                    </ul>
+                    <button class="sel-btn"><span class="lang-ar">اختر هذه الباقة ✓</span><span class="lang-en">Select This Plan ✓</span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ LEAD FORM — نسخة المسوقين ══ -->
+    <div class="wrap" id="lead-section">
+        <div class="lead-wrap reveal">
+
+            <div class="lead-intro">
+                <div class="icon">👋</div>
+                <h3><span class="lang-ar">سجّل بياناتك وسنتواصل معك</span><span class="lang-en">Leave Your Details & We'll Contact You</span></h3>
+                <p><span class="lang-ar">لا تحتاج للبحث أو التواصل — فقط اترك بياناتك وسيتواصل معك أحد أعضاء فريقنا المتخصص في أقرب وقت لمساعدتك في الحصول على نسختك.</span><span class="lang-en">No need to search or reach out — just leave your details and a specialist from our team will contact you as soon as possible to help you get your copy.</span></p>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="trust-row">
+                <div class="trust-badge"><span class="ic">🔒</span><span><span class="lang-ar">بياناتك آمنة تماماً</span><span class="lang-en">Your data is fully secure</span></span></div>
+                <div class="trust-badge"><span class="ic">⚡</span><span><span class="lang-ar">رد خلال ساعات</span><span class="lang-en">Response within hours</span></span></div>
+                <div class="trust-badge"><span class="ic">🎯</span><span><span class="lang-ar">فريق متخصص</span><span class="lang-en">Specialist team</span></span></div>
+                <div class="trust-badge"><span class="ic">💬</span><span><span class="lang-ar">بلغتك المفضلة</span><span class="lang-en">In your preferred language</span></span></div>
+            </div>
+
+            <form id="leadForm" onsubmit="submitLead(event)">
+                <div class="f-grid">
+                    <!-- الاسم -->
+                    <div class="f-group">
+                        <label>👤 <span class="lang-ar">الاسم الكامل *</span><span class="lang-en">Full Name *</span></label>
+                        <input type="text" id="lName" required placeholder="محمد أحمد">
+                    </div>
+                    <!-- البريد -->
+                    <div class="f-group">
+                        <label>📧 <span class="lang-ar">البريد الإلكتروني *</span><span class="lang-en">Email *</span></label>
+                        <input type="email" id="lEmail" required placeholder="example@email.com">
+                    </div>
+                    <!-- واتساب -->
+                    <div class="f-group">
+                        <label>📱 <span class="lang-ar">رقم الواتساب *</span><span class="lang-en">WhatsApp Number *</span></label>
+                        <input type="tel" id="lPhone" required placeholder="+201XXXXXXXXX">
+                    </div>
+                    <!-- تليجرام -->
+                    <div class="f-group">
+                        <label>✈️ <span class="lang-ar">حساب التيليجرام</span><span class="lang-en">Telegram Username</span></label>
+                        <input type="text" id="lTelegram" placeholder="@username">
+                    </div>
+                    <!-- الباقة -->
+                    <div class="f-group">
+                        <label>📦 <span class="lang-ar">الباقة المهتم بها</span><span class="lang-en">Interested Package</span></label>
+                        <select id="lPackage">
+                            <option value="lifetime">💎 <span class="lang-ar">ترخيص مدى الحياة</span><span class="lang-en">Lifetime License</span> — $499</option>
+                            <option value="monthly">📅 <span class="lang-ar">اشتراك شهري</span><span class="lang-en">Monthly</span> — $79</option>
+                            <option value="not_sure"><span class="lang-ar">لم أقرر بعد</span><span class="lang-en">Not decided yet</span></option>
+                        </select>
+                    </div>
+                    <!-- الدولة -->
+                    <div class="f-group">
+                        <label>🌍 <span class="lang-ar">الدولة</span><span class="lang-en">Country</span></label>
+                        <input type="text" id="lCountry" placeholder="مصر / Egypt">
+                    </div>
+
+                    <!-- طريقة التواصل المفضلة -->
+                    <div class="f-group full">
+                        <label>💬 <span class="lang-ar">طريقة التواصل المفضلة</span><span class="lang-en">Preferred Contact Method</span></label>
+                        <div class="contact-pref">
+                            <div class="pref-option">
+                                <input type="radio" name="contactPref" id="pref-wa" value="whatsapp" checked>
+                                <label for="pref-wa">📱 WhatsApp</label>
+                            </div>
+                            <div class="pref-option">
+                                <input type="radio" name="contactPref" id="pref-tg" value="telegram">
+                                <label for="pref-tg">✈️ Telegram</label>
+                            </div>
+                            <div class="pref-option">
+                                <input type="radio" name="contactPref" id="pref-em" value="email">
+                                <label for="pref-em">📧 Email</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أفضل وقت للتواصل -->
+                    <div class="f-group full">
+                        <label>🕐 <span class="lang-ar">أفضل وقت للتواصل معك</span><span class="lang-en">Best Time to Contact You</span></label>
+                        <div class="time-grid">
+                            <div class="time-option"><input type="radio" name="bestTime" id="t1" value="morning"><label for="t1"><span class="lang-ar">☀️ صباحاً</span><span class="lang-en">☀️ Morning</span></label></div>
+                            <div class="time-option"><input type="radio" name="bestTime" id="t2" value="afternoon" checked><label for="t2"><span class="lang-ar">🌤 ظهراً</span><span class="lang-en">🌤 Noon</span></label></div>
+                            <div class="time-option"><input type="radio" name="bestTime" id="t3" value="evening"><label for="t3"><span class="lang-ar">🌙 مساءً</span><span class="lang-en">🌙 Evening</span></label></div>
+                        </div>
+                    </div>
+
+                    <!-- كود المسوق -->
+                    <div class="f-group full">
+                        <label>🎟️ <span class="lang-ar">كود المسوق (إن وجد)</span><span class="lang-en">Marketer Code (if any)</span></label>
+                        <input type="text" id="lCoupon" placeholder="BASEM10" maxlength="20">
+                        <div id="cMsg2" class="c-msg" style="margin-top:8px;"></div>
+                    </div>
+
+                    <!-- ملاحظات -->
+                    <div class="f-group full">
+                        <label>📝 <span class="lang-ar">ملاحظات أو أسئلة</span><span class="lang-en">Notes or Questions</span></label>
+                        <textarea id="lNotes" placeholder="أي سؤال أو ملاحظة..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="lead-submit">
+                    ✅ <span class="lang-ar">أرسل بياناتي — سأنتظر تواصلكم</span>
+                    <span class="lang-en">Send My Details — I'll Wait for Your Call</span>
+                </button>
+            </form>
+
+            <!-- رسالة النجاح -->
+            <div class="success-msg" id="successBox">
+                <div class="s-icon">🎉</div>
+                <h3><span class="lang-ar">تم استلام بياناتك بنجاح!</span><span class="lang-en">Your details received successfully!</span></h3>
+                <p><span class="lang-ar">شكراً لاهتمامك بـ GOLDEX EA. سيتواصل معك أحد أعضاء فريقنا المتخصص في أقرب وقت ممكن عبر الطريقة التي اخترتها.</span><span class="lang-en">Thank you for your interest in GOLDEX EA. A specialist from our team will contact you as soon as possible via your preferred method.</span></p>
+                <div class="order-id" id="leadIdDisplay"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="wrap">
+            <p>© 2026 GOLDEX EA. <span class="lang-ar">جميع الحقوق محفوظة</span><span class="lang-en">All Rights Reserved</span></p>
+            <p>GOLDEX EA v4.21 | CCI &amp; MACD Strategy | HFT System | XAUUSD</p>
+        </div>
+    </footer>
+
+    <script>
+    /* ─── LANG ─── */
+    function toggleLang(){
+        const b=document.body, isAr=b.classList.contains('ar');
+        b.classList.toggle('ar',!isAr); b.classList.toggle('en',isAr);
+        b.dir=isAr?'ltr':'rtl';
+    }
+
+    /* ─── DATA ─── */
+    const prices={lifetime:499,monthly:79};
+    let disc=0, couponUsed='';
+    const defCoupons=[
+        {code:'BASEM10',   marketer:'Basem TP',       discount:10, active:true},
+        {code:'AHMED20',   marketer:'Ahmed Ali',      discount:20, active:true},
+        {code:'MOHAMED15', marketer:'Mohamed Hassan', discount:15, active:true}
+    ];
+    let coupons=JSON.parse(localStorage.getItem('goldex_coupons')||'null')||defCoupons;
+    if(!localStorage.getItem('goldex_coupons')) localStorage.setItem('goldex_coupons',JSON.stringify(coupons));
+
+    /* ─── COUPON (pricing cards) ─── */
+    function applyCoupon(){
+        const code=document.getElementById('couponCode').value.toUpperCase().trim();
+        const el=document.getElementById('cMsg');
+        const ar=document.body.classList.contains('ar');
+        if(!code){setMsg(el,ar?'❌ أدخل الكود':'❌ Enter a code',false);return;}
+        const f=coupons.find(c=>c.code===code&&c.active);
+        if(f){
+            disc=f.discount; couponUsed=f.code;
+            document.getElementById('lifetimeFinal').textContent=Math.round(prices.lifetime*(1-disc/100));
+            document.getElementById('monthlyFinal').textContent=Math.round(prices.monthly*(1-disc/100));
+            document.getElementById('lCoupon').value=f.code;
+            setMsg(el,ar?`✅ خصم ${f.discount}% مطبَّق`:`✅ ${f.discount}% discount applied!`,true);
+        } else {
+            setMsg(el,ar?'❌ كود غير صالح':'❌ Invalid code',false);
+        }
+    }
+
+    /* ─── PKG SELECT ─── */
+    function selectPkg(pkg,el){
+        document.getElementById('lPackage').value=pkg;
+        document.querySelectorAll('.p-card').forEach(c=>c.style.outline='');
+        el.style.outline='2px solid var(--gold)';
+        setTimeout(()=>document.getElementById('lead-section').scrollIntoView({behavior:'smooth',block:'start'}),350);
+    }
+
+    /* ─── LEAD FORM SUBMIT ─── */
+    function submitLead(e){
+        e.preventDefault();
+        const ar=document.body.classList.contains('ar');
+        const name=document.getElementById('lName').value.trim();
+        const email=document.getElementById('lEmail').value.trim();
+        const phone=document.getElementById('lPhone').value.trim();
+        const tg=document.getElementById('lTelegram').value.trim();
+        const pkg=document.getElementById('lPackage').value;
+        const country=document.getElementById('lCountry').value.trim();
+        const pref=document.querySelector('input[name="contactPref"]:checked')?.value||'whatsapp';
+        const time=document.querySelector('input[name="bestTime"]:checked')?.value||'afternoon';
+        const notes=document.getElementById('lNotes').value.trim();
+        const couponInput=document.getElementById('lCoupon').value.toUpperCase().trim();
+        const couponObj=coupons.find(c=>c.code===couponInput&&c.active);
+        const mkt=couponObj?couponObj.marketer:'Direct';
+        const finalCoupon=couponObj?couponInput:'None';
+        const discAmt=couponObj?couponObj.discount:0;
+        const basePrice=pkg==='not_sure'?0:(prices[pkg]||0);
+        const finalPrice=basePrice>0?(basePrice*(1-discAmt/100)).toFixed(2):'TBD';
+        const id='LEAD'+Date.now();
+
+        const lead={id,date:new Date().toISOString(),name,email,phone,telegram:tg,package:pkg,
+            country,contactPref:pref,bestTime:time,notes,couponCode:finalCoupon,
+            marketer:mkt,discount:discAmt,estimatedPrice:finalPrice,status:'new'};
+
+        const leads=JSON.parse(localStorage.getItem('goldex_leads')||'[]');
+        leads.push(lead);
+        localStorage.setItem('goldex_leads',JSON.stringify(leads));
+
+        // Hide form, show success
+        document.getElementById('leadForm').style.display='none';
+        const successBox=document.getElementById('successBox');
+        successBox.style.display='block';
+        document.getElementById('leadIdDisplay').textContent=`${ar?'رقم الطلب':'Request ID'}: ${id}`;
+
+        /* اختياري: أرسل إشعار للإدارة عبر واتساب (مخفي عن المستخدم) */
+        const adminMsg=encodeURIComponent(
+            `🆕 LEAD جديد: ${id}\n👤 ${name}\n📱 ${phone}${tg?'\n✈️ '+tg:''}\n📦 ${pkg}\n🌍 ${country}\n💬 ${pref} | ${time}\n🎟️ ${finalCoupon} (${mkt})\n💵 ~$${finalPrice}\n📝 ${notes||'—'}`
+        );
+        // يتم الإرسال للإدارة فقط في الخلفية — لا يرى العميل الرقم
+        setTimeout(()=>{
+            const link=document.createElement('a');
+            link.href=`https://wa.me/201065673301?text=${adminMsg}`;
+            link.target='_blank';
+            link.click();
+        },1500);
+    }
+
+    function setMsg(el,t,ok){el.textContent=t;el.className='c-msg '+(ok?'ok':'err');}
+    function downloadPDF(){window.open('GOLDEX_EA_Manual.pdf','_blank');}
+
+    /* ─── SCROLL REVEAL ─── */
+    const io=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}});
+    },{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    </script>
+</body>
+</html>
