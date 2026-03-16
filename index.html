@@ -317,27 +317,19 @@
 //|        Crypto / Forex / Gold / Indices - FULLY DYNAMIC           |
 //+------------------------------------------------------------------+
 //  PATTERNS INCLUDED:
+                        
 //  ── CANDLESTICK ──────────────────────────────────────────────────
-//  1.  Pin Bar / Hammer / Shooting Star
-//  2.  Engulfing (Bullish / Bearish)
-//  3.  Inside Bar
-//  4.  Outside Bar
-//  5.  Doji at Key Level
-//  6.  Tweezer Top / Bottom
-//  7.  Harami (Bullish / Bearish)
-//  8.  Morning Star / Evening Star
-//  9.  Three White Soldiers / Three Black Crows
-//  10. Dark Cloud Cover / Piercing Line
+
+                        
+10. Dark Cloud Cover / Piercing Line
+
+
+                        
 //  ── CHART PATTERNS ───────────────────────────────────────────────
-//  11. Break & Retest
-//  12. Double Top / Double Bottom
-//  13. Head & Shoulders / Inverse H&S
-//  14. Bull Flag / Bear Flag
-//  15. Ascending Triangle / Descending Triangle
-//  16. Rising Wedge / Falling Wedge
+
 //+------------------------------------------------------------------+
 #property copyright "Goldex All Patterns Dynamic v3.0"
-#property version   "3.00"
+#property version   ".00"
 #property strict
 
 #include &lt;Trade\Trade.mqh&gt;
@@ -346,130 +338,12 @@
 CTrade        trade;
 CPositionInfo position;
 
-//+------------------------------------------------------------------+
-//| Enums                                                             |
-//+------------------------------------------------------------------+
-enum SYMBOL_TYPE { SYM_FOREX, SYM_CRYPTO, SYM_METAL, SYM_INDEX, SYM_UNKNOWN };
 
-//+------------------------------------------------------------------+
-//| Inputs                                                            |
-//+------------------------------------------------------------------+
 input group "════════ TRADING CONTROL ════════"
 input bool   EnableAutoTrading = true;
 input int    MagicNumber       = 20250315;
 input string TradeComment      = "Goldex v3";
 
-input group "════════ SIGNAL SETTINGS ════════"
-input int    MinProbability    = 55;   // Lower = more signals
-input int    MaxDailyTrades    = 15;
-
-input group "════════ CANDLESTICK PATTERNS ════════"
-input bool   TradePinBar       = true;   // Pin Bar / Hammer / Shooting Star
-input bool   TradeEngulfing    = true;   // Engulfing
-input bool   TradeInsideBar    = true;   // Inside Bar
-input bool   TradeOutsideBar   = true;   // Outside Bar
-input bool   TradeDoji         = true;   // Doji at Key Level
-input bool   TradeTweezer      = true;   // Tweezer Top/Bottom
-input bool   TradeHarami       = true;   // Harami
-input bool   TradeMorningStar  = true;   // Morning/Evening Star
-input bool   TradeSoldiersCrows= true;   // 3 Soldiers / 3 Crows
-input bool   TradeDarkCloud    = true;   // Dark Cloud / Piercing
-
-input group "════════ CHART PATTERNS ════════"
-input bool   TradeBreakRetest  = true;   // Break & Retest
-input bool   TradeDouble       = true;   // Double Top/Bottom
-input bool   TradeHS           = true;   // Head & Shoulders
-input bool   TradeFlag         = true;   // Bull/Bear Flag
-input bool   TradeTriangle     = true;   // Triangles
-input bool   TradeWedge        = true;   // Wedges
-
-input group "════════ SESSION FILTERS ════════"
-input bool   FilterBySession   = false;
-input bool   TradeAsian        = true;
-input bool   TradeLondon       = true;
-input bool   TradeNewYork      = true;
-
-input group "════════ CONFIRMATION ════════"
-input bool   UseMTFConfirmation= false;
-input ENUM_TIMEFRAMES ConfirmTF= PERIOD_H1;
-
-input group "════════ RISK MANAGEMENT ════════"
-input double RiskPercent       = 1.0;
-input double MaxDailyLoss      = 5.0;
-input double ATRMultSL         = 1.5;
-input double RRRatio           = 2.0;
-
-input group "════════ POSITION MANAGEMENT ════════"
-input bool   UseBreakeven      = true;
-input double BEvenTrigger      = 1.0;
-input double BEvenOffsetATR    = 0.3;
-input bool   UseTrailing       = true;
-input double TrailATR          = 1.2;
-input double TrailActivation   = 1.0;
-
-input group "════════ MONEY MANAGEMENT ════════"
-input bool   UseFixedLot       = false;
-input double FixedLot          = 0.01;
-input double MaxLot            = 5.0;
-input double MinLot            = 0.01;
-input int    MaxOpenPos        = 1;
-
-input group "════════ DYNAMIC PARAMS ════════"
-input int    SwingLookback     = 8;    // Bars each side for swing
-input int    ScanBars          = 50;   // How many bars to scan
-input double RetestATR         = 0.5;  // Retest zone width (ATR)
-input double DoubleTolATR      = 0.4;  // Double pattern tolerance (ATR)
-input double PinBarRatio       = 2.5;  // Wick/body ratio for pin bar
-input double MaxSpreadATR      = 0.25; // Max spread as ATR fraction
-
-input group "════════ DASHBOARD ════════"
-input bool   ShowDashboard     = true;
-input int    DashX             = 15;
-input int    DashY             = 25;
-input color  DashBg            = C'10,14,24';
-
-input group "════════ ALERTS ════════"
-input bool   EnableAlerts      = true;
-input bool   EnableSound       = true;
-input string SoundFile         = "alert.wav";
-
-input group "════════ ADVANCED ════════"
-input int    Slippage          = 50;
-
-//+------------------------------------------------------------------+
-//| Structures                                                        |
-//+------------------------------------------------------------------+
-struct TodayStats {
-    int    tradesOpened, tradesClosed, wins, losses;
-    double grossProfit, grossLoss, netProfit;
-    datetime date;
-};
-
-struct Signal {
-    bool   isValid;
-    int    type;           // ORDER_TYPE_BUY / SELL
-    double entry, sl, tp;
-    int    probability;
-    string pattern;
-    string category;       // "Candle" or "Chart"
-    int    strength;       // 1=weak 2=medium 3=strong
-    datetime time;
-};
-
-struct SwingPt {
-    double price;
-    int    bar;
-    bool   isHigh;
-};
-
-struct DynP {
-    SYMBOL_TYPE symType;
-    double atr14, atr50;
-    double pointValue, tickValue, tickSize;
-    double minVol, maxVol, stepVol;
-    double maxSpread;
-    int    digits;
-};
 
 // ... (باقي الكود - نسخة مختصرة للعرض) ...
 // الكود الكامل موجود في الملف الأصلي
