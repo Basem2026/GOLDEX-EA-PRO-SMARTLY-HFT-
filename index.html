@@ -3,6 +3,722 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>GOLDEX EA — نظام التداول الاحترافي بـ 16 نمط سعري</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Cinzel:wght@700;900&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --dark:#07090F; --dark2:#0C1220; --dark3:#141B2D; --dark4:#1C2540;
+            --gold:#C9A959; --gold-l:#E2C98A; --gold-d:#9B7B30;
+            --text:#EFF3FA; --text2:#B0BFDA; --text3:#6B7C9A;
+            --success:#2E8B5E; --danger:#B84545;
+            --grad-gold:linear-gradient(135deg,#C9A959,#E2C98A,#9B7B30);
+            --shadow-g:0 0 40px rgba(201,169,89,.25);
+            --r:18px;
+            --code-bg:#0A0E17;
+        }
+        html { scroll-behavior:smooth; }
+        body { background:var(--dark); color:var(--text); font-family:'Cairo',sans-serif; overflow-x:hidden; line-height:1.7; }
+        body.en { direction:ltr; font-family:'Poppins','Cairo',sans-serif; }
+        body.en .lang-ar, body.ar .lang-en { display:none !important; }
+
+        /* BG */
+        .bg-anim { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+        .bg-anim::before { content:''; position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle,rgba(201,169,89,.06),transparent 70%); top:-200px; right:-100px; animation:drift 20s ease-in-out infinite; filter:blur(60px); }
+        .bg-anim::after  { content:''; position:absolute; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(44,62,90,.1),transparent 70%); bottom:10%; left:-80px; animation:drift 28s ease-in-out infinite reverse; filter:blur(80px); }
+        @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(25px,-25px) scale(1.06)} 70%{transform:translate(-15px,18px) scale(.96)} }
+
+        /* LAYOUT */
+        .wrap { max-width:1280px; margin:0 auto; padding:0 clamp(16px,4vw,52px); position:relative; z-index:2; }
+
+        /* LANG BTN */
+        #langBtn { position:fixed; top:16px; left:16px; z-index:1000; background:rgba(12,18,32,.88); border:1px solid rgba(201,169,89,.35); color:var(--gold-l); padding:9px 20px; border-radius:50px; font-family:'Poppins','Cairo',sans-serif; font-size:13px; font-weight:600; cursor:pointer; backdrop-filter:blur(14px); letter-spacing:.05em; transition:all .3s; }
+        #langBtn:hover { background:var(--gold); color:var(--dark); }
+
+        /* MOBILE CART BTN */
+        #cartBtn { display:none; position:fixed; top:16px; right:16px; z-index:1000; background:rgba(12,18,32,.88); border:1px solid rgba(201,169,89,.35); color:var(--gold-l); width:42px; height:42px; border-radius:10px; font-size:20px; cursor:pointer; backdrop-filter:blur(14px); align-items:center; justify-content:center; transition:all .3s; }
+        #cartBtn:hover { background:var(--gold); color:var(--dark); }
+
+        /* HEADER */
+        header { position:sticky; top:0; z-index:100; background:rgba(7,9,15,.88); backdrop-filter:blur(22px); border-bottom:1px solid rgba(201,169,89,.1); }
+        .nav-inner { display:flex; align-items:center; justify-content:space-between; padding:15px clamp(16px,4vw,52px); gap:16px; }
+        .logo { font-family:'Cinzel',serif; font-size:clamp(18px,3vw,28px); font-weight:900; background:var(--grad-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:.08em; flex-shrink:0; line-height:1; }
+        .logo small { display:block; font-size:.38em; color:var(--text3); -webkit-text-fill-color:var(--text3); letter-spacing:.2em; font-family:'Cairo','Poppins',sans-serif; font-weight:400; margin-top:4px; }
+        .hft-badge { background:rgba(201,169,89,.08); border:1px solid rgba(201,169,89,.3); color:var(--gold); padding:9px 20px; border-radius:50px; font-size:clamp(11px,1.4vw,14px); font-weight:700; letter-spacing:.06em; white-space:nowrap; flex-shrink:0; overflow:hidden; position:relative; }
+        .hft-badge::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(201,169,89,.12),transparent); animation:shine 5s infinite; transform:translateX(-100%); }
+        @keyframes shine { to { transform:translateX(200%); } }
+
+        /* HERO */
+        .hero { padding:clamp(80px,12vw,140px) 0 clamp(60px,8vw,100px); position:relative; overflow:hidden; }
+        .hero-eyebrow { display:inline-flex; align-items:center; gap:10px; background:rgba(201,169,89,.08); border:1px solid rgba(201,169,89,.25); color:var(--gold-l); padding:8px 20px; border-radius:50px; font-size:clamp(12px,1.5vw,15px); font-weight:600; letter-spacing:.06em; margin-bottom:26px; }
+        .hero-title { font-size:clamp(32px,7vw,76px); font-weight:900; line-height:1.08; margin-bottom:26px; text-shadow:0 8px 30px rgba(0,0,0,.5); }
+        .hero-title .gw { background:linear-gradient(135deg,#C9A959,#F5E6BE,#B58F3F); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-sub { font-size:clamp(14px,2vw,20px); color:var(--text2); max-width:620px; margin-bottom:40px; line-height:1.8; }
+        .hero-btns { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+        .btn-p { background:var(--grad-gold); color:var(--dark); padding:clamp(14px,2vw,20px) clamp(28px,4vw,54px); border-radius:50px; font-size:clamp(15px,2vw,21px); font-weight:800; border:none; cursor:pointer; text-decoration:none; display:inline-block; box-shadow:0 12px 30px -8px rgba(201,169,89,.5); transition:all .4s; letter-spacing:.04em; position:relative; overflow:hidden; }
+        .btn-p::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); transition:left .6s; }
+        .btn-p:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 20px 40px -8px rgba(201,169,89,.65); }
+        .btn-p:hover::before { left:100%; }
+        .btn-s { background:rgba(201,169,89,.07); border:1px solid rgba(201,169,89,.3); color:var(--gold-l); padding:clamp(14px,2vw,20px) clamp(20px,3vw,38px); border-radius:50px; font-size:clamp(13px,1.8vw,17px); font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; transition:all .4s; }
+        .btn-s:hover { background:rgba(201,169,89,.15); transform:translateY(-3px); }
+
+        /* STATS */
+        .stats-bar { background:rgba(28,37,64,.55); border:1px solid rgba(201,169,89,.12); border-radius:20px; padding:clamp(18px,3vw,32px); display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:clamp(36px,5vw,66px) 0; backdrop-filter:blur(12px); }
+        .stat-item { text-align:center; padding:6px 4px; }
+        .stat-num { font-size:clamp(20px,3.5vw,40px); font-weight:900; background:var(--grad-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+        .stat-label { color:var(--text3); font-size:clamp(11px,1.2vw,14px); margin-top:5px; }
+
+        /* NOTICE */
+        .notice { background:linear-gradient(135deg,rgba(28,37,64,.8),rgba(12,18,32,.9)); border:1px solid rgba(201,169,89,.25); border-radius:var(--r); padding:clamp(22px,4vw,38px); margin:clamp(26px,5vw,56px) 0; position:relative; overflow:hidden; }
+        .notice::before { content:''; position:absolute; top:0; right:0; width:4px; height:100%; background:var(--grad-gold); border-radius:0 var(--r) var(--r) 0; }
+        body.en .notice::before { right:auto; left:0; border-radius:var(--r) 0 0 var(--r); }
+        .notice h3 { color:var(--gold); font-size:clamp(17px,2.5vw,25px); margin-bottom:10px; font-weight:700; }
+        .notice p { color:var(--text2); font-size:clamp(13px,1.6vw,16px); line-height:1.8; }
+
+        /* SECTION TITLE */
+        .sec-title { font-size:clamp(24px,4.5vw,50px); font-weight:800; text-align:center; margin-bottom:clamp(36px,5vw,65px); }
+        .sec-title::after { content:''; display:block; width:90px; height:3px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold-l),var(--gold),transparent); margin:16px auto 0; border-radius:2px; }
+
+        /* FEATURES */
+        .features { padding:clamp(56px,8vw,108px) 0; }
+        .feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr)); gap:clamp(18px,3vw,36px); }
+        .feat-card { background:rgba(28,37,64,.45); border:1px solid rgba(201,169,89,.12); border-radius:var(--r); padding:clamp(22px,3vw,38px); transition:all .45s; position:relative; overflow:hidden; }
+        .feat-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at top right,rgba(201,169,89,.09),transparent 65%); opacity:0; transition:opacity .45s; }
+        .feat-card:hover { transform:translateY(-10px); border-color:rgba(201,169,89,.4); box-shadow:0 20px 40px -15px rgba(201,169,89,.2); }
+        .feat-card:hover::before { opacity:1; }
+        .feat-icon { font-size:clamp(36px,5vw,54px); margin-bottom:18px; filter:drop-shadow(0 6px 12px rgba(201,169,89,.3)); }
+        .feat-title { font-size:clamp(16px,2vw,23px); color:var(--gold); margin-bottom:12px; font-weight:700; }
+        .feat-card p { color:var(--text2); font-size:clamp(13px,1.4vw,15px); line-height:1.75; }
+
+        /* SCREENSHOTS */
+        .screenshots { padding:clamp(56px,8vw,108px) 0; background:rgba(12,18,32,.5); }
+        .ss-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr)); gap:clamp(18px,3vw,34px); }
+        .ss-card { background:rgba(28,37,64,.55); border:1px solid rgba(201,169,89,.12); border-radius:var(--r); overflow:hidden; transition:all .45s; }
+        .ss-card:hover { transform:translateY(-8px); border-color:var(--gold); box-shadow:var(--shadow-g); }
+        .ss-img { width:100%; height:clamp(150px,18vw,250px); background:linear-gradient(135deg,#1C2540,#141B2D); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:clamp(13px,1.8vw,19px); font-weight:600; border-bottom:1px solid rgba(201,169,89,.15); text-align:center; padding:14px; position:relative; overflow:hidden; }
+        .ss-img::after { content:''; position:absolute; inset:0; background:linear-gradient(45deg,transparent 40%,rgba(201,169,89,.05),transparent 60%); animation:shimmer 4s infinite; transform:translateX(-100%); }
+        @keyframes shimmer { to { transform:translateX(200%); } }
+        .ss-cap { padding:18px; text-align:center; color:var(--text2); font-size:clamp(12px,1.3vw,14px); }
+
+        /* TIMELINE */
+        .how-wrap { padding:clamp(56px,8vw,108px) 0; }
+        .timeline { display:flex; flex-direction:column; max-width:700px; margin:0 auto; }
+        .tl-item { display:flex; gap:22px; padding-bottom:30px; position:relative; }
+        .tl-item:not(:last-child)::after { content:''; position:absolute; top:48px; right:22px; width:2px; height:calc(100% - 34px); background:linear-gradient(180deg,rgba(201,169,89,.4),rgba(201,169,89,.05)); }
+        body.en .tl-item:not(:last-child)::after { right:auto; left:22px; }
+        .tl-num { width:46px; height:46px; border-radius:50%; flex-shrink:0; background:var(--grad-gold); color:var(--dark); display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; box-shadow:0 4px 16px rgba(201,169,89,.35); position:relative; z-index:1; }
+        .tl-body { flex:1; padding-top:8px; }
+        .tl-body h4 { color:var(--gold-l); font-size:clamp(15px,2vw,19px); margin-bottom:6px; font-weight:700; }
+        .tl-body p { color:var(--text2); font-size:clamp(13px,1.4vw,15px); }
+
+        /* CODE SECTION */
+        .code-section { padding:clamp(56px,8vw,108px) 0; background:linear-gradient(135deg,#0C0F17,#07090F); position:relative; overflow:hidden; }
+        .code-header { display:flex; align-items:center; gap:15px; margin-bottom:30px; flex-wrap:wrap; }
+        .code-badge { background:rgba(201,169,89,.15); border:1px solid rgba(201,169,89,.3); border-radius:30px; padding:8px 22px; font-weight:700; color:var(--gold); font-size:clamp(13px,1.5vw,16px); }
+        .code-badge i { margin-left:8px; }
+        .code-container { background:var(--code-bg); border:1px solid rgba(201,169,89,.15); border-radius:24px; padding:clamp(20px,3vw,36px); box-shadow:0 25px 50px -12px rgba(0,0,0,.8); position:relative; }
+        .code-title { display:flex; align-items:center; gap:12px; margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid rgba(201,169,89,.15); }
+        .code-title h3 { color:var(--gold); font-size:clamp(18px,2.5vw,26px); font-weight:700; }
+        .code-title span { background:rgba(201,169,89,.08); padding:5px 14px; border-radius:20px; font-size:13px; color:var(--text2); }
+        .code-box { background:#03050A; border-radius:16px; padding:clamp(16px,2.5vw,28px); border:1px solid rgba(201,169,89,.1); max-height:550px; overflow-y:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; color:#E2E9F0; direction:ltr; text-align:left; }
+        .code-box pre { margin:0; white-space:pre-wrap; word-wrap:break-word; }
+        .code-footer { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:15px; }
+        .code-stats { display:flex; gap:20px; color:var(--text3); font-size:14px; }
+        .code-stats div { display:flex; align-items:center; gap:5px; }
+        .code-copy { background:rgba(201,169,89,.1); border:1px solid rgba(201,169,89,.25); color:var(--gold-l); padding:10px 28px; border-radius:30px; font-weight:600; cursor:pointer; transition:all .3s; font-size:14px; }
+        .code-copy:hover { background:var(--grad-gold); color:var(--dark); border-color:transparent; }
+
+        /* PRICING */
+        .pricing { padding:clamp(56px,8vw,108px) 0; }
+        .p-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr)); gap:clamp(22px,4vw,48px); max-width:880px; margin:0 auto; }
+        .p-card { background:linear-gradient(135deg,rgba(28,37,64,.75),rgba(12,18,32,.9)); border:1px solid rgba(201,169,89,.2); border-radius:clamp(20px,3vw,36px); padding:clamp(26px,4vw,48px) clamp(20px,3vw,38px); text-align:center; cursor:pointer; transition:all .45s; position:relative; overflow:hidden; }
+        .p-card.featured { border-color:rgba(201,169,89,.5); background:linear-gradient(135deg,rgba(44,62,90,.85),rgba(20,27,43,.95)); }
+        .popular-tag { position:absolute; top:20px; right:-32px; background:var(--grad-gold); color:var(--dark); padding:6px 38px; font-size:clamp(10px,1.2vw,12px); font-weight:700; transform:rotate(45deg); box-shadow:0 4px 12px rgba(0,0,0,.3); white-space:nowrap; }
+        body.en .popular-tag { right:auto; left:-32px; transform:rotate(-45deg); }
+        .p-card:hover { transform:translateY(-12px); box-shadow:0 24px 48px -16px rgba(201,169,89,.3); border-color:var(--gold); }
+        .p-title { font-size:clamp(18px,2.5vw,28px); color:var(--gold); margin-bottom:18px; font-weight:800; }
+        .p-orig { text-decoration:line-through; color:var(--text3); font-size:clamp(15px,2vw,21px); margin-bottom:7px; }
+        .p-price { font-size:clamp(40px,6vw,62px); font-weight:900; line-height:1; margin-bottom:26px; }
+        .p-price small { font-size:clamp(13px,1.5vw,18px); color:var(--text3); font-weight:400; }
+        .p-feats { list-style:none; margin-bottom:28px; }
+        .p-feats li { padding:11px 0; border-bottom:1px solid rgba(201,169,89,.1); color:var(--text2); font-size:clamp(13px,1.4vw,15px); text-align:right; }
+        body.en .p-feats li { text-align:left; }
+        .p-feats li:last-child { border:none; }
+        .sel-btn { width:100%; background:var(--grad-gold); color:var(--dark); padding:clamp(12px,1.8vw,17px); border:none; border-radius:50px; font-size:clamp(14px,1.6vw,17px); font-weight:800; cursor:pointer; transition:all .35s; font-family:inherit; }
+        .sel-btn:hover { opacity:.88; transform:translateY(-2px); }
+
+        /* COUPON */
+        .coupon-sec { background:rgba(28,37,64,.45); border:1px solid rgba(201,169,89,.25); border-radius:var(--r); padding:clamp(26px,4vw,48px); margin:clamp(28px,5vw,56px) 0; text-align:center; }
+        .coupon-sec h3 { color:var(--gold); font-size:clamp(17px,2.5vw,27px); margin-bottom:18px; }
+        .c-row { display:flex; gap:12px; max-width:540px; margin:0 auto; flex-wrap:wrap; justify-content:center; }
+        .c-row input { flex:1; min-width:160px; padding:clamp(12px,1.8vw,17px) 20px; border-radius:50px; border:1px solid rgba(201,169,89,.3); background:rgba(7,9,15,.7); color:var(--text); font-size:clamp(13px,1.5vw,17px); text-align:center; letter-spacing:2px; transition:all .3s; font-family:inherit; }
+        .c-row input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 16px rgba(201,169,89,.22); }
+        .c-row button { padding:clamp(12px,1.8vw,17px) clamp(20px,3vw,36px); border-radius:50px; border:none; background:var(--grad-gold); color:var(--dark); font-weight:700; font-size:clamp(13px,1.5vw,17px); cursor:pointer; transition:all .35s; font-family:inherit; white-space:nowrap; }
+        .c-row button:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(201,169,89,.4); }
+        .c-msg { margin-top:14px; font-weight:600; font-size:clamp(13px,1.4vw,15px); }
+        .ok { color:#3A9B74; } .err { color:#C45C5C; }
+
+        /* FORM */
+        .pay-wrap { background:linear-gradient(135deg,rgba(28,37,64,.7),rgba(12,18,32,.9)); border:1px solid rgba(201,169,89,.18); border-radius:clamp(20px,3vw,40px); padding:clamp(26px,5vw,68px); margin:clamp(28px,5vw,56px) 0; }
+        .f-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .f-group { }
+        .f-group.full { grid-column:1/-1; }
+        .f-group label { display:block; margin-bottom:8px; color:var(--gold-l); font-weight:600; font-size:clamp(12px,1.4vw,14px); letter-spacing:.04em; }
+        .f-group input, .f-group select { width:100%; padding:clamp(11px,1.6vw,16px) clamp(14px,2vw,20px); border-radius:12px; border:1px solid rgba(201,169,89,.2); background:rgba(7,9,15,.65); color:var(--text); font-size:clamp(13px,1.4vw,15px); transition:all .3s; font-family:inherit; }
+        .f-group input:focus, .f-group select:focus { outline:none; border-color:var(--gold); box-shadow:0 0 14px rgba(201,169,89,.2); }
+        .f-group select option { background:var(--dark3); color:var(--text); }
+        .wallet-box { background:rgba(7,9,15,.8); border:1px solid rgba(201,169,89,.25); border-radius:16px; padding:clamp(18px,3vw,30px); text-align:center; margin:clamp(18px,3vw,30px) 0; position:relative; overflow:hidden; }
+        .wallet-box::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at center,rgba(201,169,89,.04),transparent 65%); }
+        .wallet-box strong { color:var(--gold-l); font-size:clamp(14px,1.6vw,17px); display:block; margin-bottom:12px; position:relative; }
+        .w-addr { font-family:monospace; font-size:clamp(11px,1.4vw,16px); background:rgba(0,0,0,.3); padding:9px 14px; border-radius:10px; letter-spacing:1.5px; word-break:break-all; display:inline-block; max-width:100%; position:relative; }
+        .copy-btn { background:rgba(44,62,90,.7); color:var(--text); border:1px solid rgba(201,169,89,.3); padding:9px 24px; border-radius:50px; cursor:pointer; margin-top:14px; font-weight:600; font-size:clamp(12px,1.4vw,14px); transition:all .3s; font-family:inherit; }
+        .copy-btn:hover { background:var(--grad-gold); color:var(--dark); }
+        .steps-box { background:rgba(201,169,89,.04); border:1px solid rgba(201,169,89,.1); border-radius:14px; padding:clamp(16px,2.5vw,26px); margin:clamp(18px,3vw,28px) 0; }
+        .steps-box p { color:var(--gold-l); font-weight:700; margin-bottom:12px; font-size:clamp(13px,1.5vw,15px); }
+        .steps-box ol { padding-right:18px; }
+        body.en .steps-box ol { padding-right:0; padding-left:18px; }
+        .steps-box li { margin-bottom:9px; color:var(--text2); font-size:clamp(12px,1.4vw,14px); }
+        .sub-btn { width:100%; background:linear-gradient(135deg,#2E8B5E,#1E5E45); color:#fff; padding:clamp(15px,2.5vw,21px); border:none; border-radius:50px; font-size:clamp(17px,2.5vw,25px); font-weight:800; cursor:pointer; margin-top:26px; letter-spacing:.04em; box-shadow:0 12px 28px -8px rgba(46,125,94,.5); transition:all .4s; font-family:inherit; }
+        .sub-btn:hover { transform:translateY(-4px); box-shadow:0 20px 40px -8px rgba(46,125,94,.65); }
+
+        /* CONTACT */
+        .c-row2 { display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(12px,2vw,22px); margin-top:clamp(28px,4vw,46px); }
+        .c-link { display:flex; align-items:center; gap:10px; padding:clamp(13px,2vw,17px) clamp(22px,3vw,42px); border-radius:60px; text-decoration:none; color:#fff; font-weight:700; font-size:clamp(13px,1.8vw,17px); transition:all .4s; box-shadow:0 8px 24px rgba(0,0,0,.3); white-space:nowrap; }
+        .wa { background:linear-gradient(135deg,#25D366,#128C7E); }
+        .tg { background:linear-gradient(135deg,#0088cc,#005f8e); }
+        .c-link:hover { transform:translateY(-5px) scale(1.04); box-shadow:0 18px 35px -8px rgba(0,0,0,.45); }
+
+        /* PDF */
+        .pdf-wrap { text-align:center; margin:clamp(28px,5vw,56px) 0; }
+        .pdf-btn { background:rgba(28,37,64,.7); border:1px solid rgba(201,169,89,.3); color:var(--text); padding:clamp(14px,2vw,20px) clamp(28px,5vw,56px); border-radius:60px; text-decoration:none; display:inline-block; font-size:clamp(15px,2vw,22px); font-weight:700; transition:all .4s; backdrop-filter:blur(8px); }
+        .pdf-btn:hover { background:var(--grad-gold); color:var(--dark); transform:translateY(-4px); box-shadow:var(--shadow-g); }
+
+        /* FOOTER */
+        footer { padding:clamp(38px,6vw,68px) 0; border-top:1px solid rgba(201,169,89,.1); text-align:center; color:var(--text3); font-size:clamp(12px,1.3vw,14px); }
+        footer p+p { margin-top:12px; }
+
+        /* ADMIN */
+        .admin-dot { position:fixed; bottom:8px; left:8px; width:24px; height:24px; opacity:.07; z-index:999; }
+        .admin-dot a { display:block; width:100%; height:100%; background:var(--gold); border-radius:50%; }
+
+        /* REVEAL */
+        .reveal { opacity:0; transform:translateY(26px); transition:opacity .65s ease, transform .65s ease; }
+        .reveal.vis { opacity:1; transform:none; }
+
+        /* SCROLLBAR */
+        .code-box::-webkit-scrollbar { width:8px; }
+        .code-box::-webkit-scrollbar-track { background:#03050A; }
+        .code-box::-webkit-scrollbar-thumb { background:rgba(201,169,89,.3); border-radius:10px; }
+        .code-box::-webkit-scrollbar-thumb:hover { background:rgba(201,169,89,.5); }
+
+        /* ═══════════ RESPONSIVE ═══════════ */
+        @media (max-width:1024px) {
+            .f-grid { grid-template-columns:1fr; }
+            .f-group.full { grid-column:1; }
+        }
+        @media (max-width:768px) {
+            #cartBtn { display:flex; }
+            .hft-badge { display:none; }
+            .stats-bar { grid-template-columns:repeat(2,1fr); }
+            .p-grid { grid-template-columns:1fr; max-width:440px; }
+            .code-footer { flex-direction:column; align-items:flex-start; }
+        }
+        @media (max-width:520px) {
+            .hero-btns { flex-direction:column; align-items:stretch; }
+            .btn-p, .btn-s { text-align:center; }
+            .c-row { flex-direction:column; }
+            .c-row input, .c-row button { width:100%; }
+            .c-row2 { flex-direction:column; align-items:center; }
+            .c-link { width:100%; max-width:300px; justify-content:center; }
+            .stats-bar { grid-template-columns:repeat(2,1fr); gap:10px; padding:14px; }
+            .tl-item:not(:last-child)::after { display:none; }
+        }
+        @media (max-width:360px) {
+            .logo { font-size:16px; }
+            .hero-title { font-size:28px; }
+        }
+    </style>
+</head>
+<body class="ar" dir="rtl">
+    <div class="bg-anim"></div>
+    <div class="admin-dot"><a href="admin.html" title="admin"></a></div>
+    <button id="langBtn" onclick="toggleLang()"><span class="lang-ar">English</span><span class="lang-en">العربية</span></button>
+    <button id="cartBtn" onclick="scrollTo('pricing')">🛒</button>
+
+    <!-- HEADER -->
+    <header>
+        <div class="nav-inner">
+            <div class="logo">GOLDEX EA<small><span class="lang-ar">نظام تداول احترافي</span><span class="lang-en">Professional Trading System</span></small></div>
+            <div class="hft-badge">⚡ 16 PATTERNS ⚡</div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="wrap">
+            <div class="hero-eyebrow">⚡ <span class="lang-ar">الإصدار 3.0 — 16 نمط سعري</span><span class="lang-en">Version 3.0 — 16 Patterns</span></div>
+            <h1 class="hero-title"><span class="gw">GOLDEX EA</span><br><span class="lang-ar">المستشار الخبير للتداول الذكي</span><span class="lang-en">Expert Advisor for Smart Trading</span></h1>
+            <p class="hero-sub"><span class="lang-ar">محرك تحليل متكامل يبحث عن 16 نمط سعري مختلف في نفس الوقت، مع فلتر مزدوج يقلل الإشارات الكاذبة ويرفع دقة الدخول إلى أعلى مستوى.</span><span class="lang-en">Integrated analysis engine scanning 16 different price patterns simultaneously, with dual filter to reduce false signals and maximize entry accuracy.</span></p>
+            <div class="hero-btns">
+                <a href="#pricing" class="btn-p">🚀 <span class="lang-ar">احصل على نسختك الآن</span><span class="lang-en">Get Your Copy Now</span></a>
+                <a href="#code-section" class="btn-s">📖 <span class="lang-ar">استعرض الكود البرمجي</span><span class="lang-en">View Source Code</span></a>
+            </div>
+            <div class="stats-bar reveal">
+                <div class="stat-item"><div class="stat-num">16</div><div class="stat-label"><span class="lang-ar">نمط سعري</span><span class="lang-en">Patterns</span></div></div>
+                <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label"><span class="lang-ar">دعم فني</span><span class="lang-en">Support</span></div></div>
+                <div class="stat-item"><div class="stat-num">HFT</div><div class="stat-label"><span class="lang-ar">سرعة فائقة</span><span class="lang-en">High Speed</span></div></div>
+                <div class="stat-item"><div class="stat-num">USDT</div><div class="stat-label">TRC20</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOTICE + PDF -->
+    <div class="wrap">
+        <div class="notice reveal">
+            <h3>📢 <span class="lang-ar">تنويه هام — نظام التجهيز الفردي</span><span class="lang-en">Important Notice — Individual Preparation</span></h3>
+            <p><span class="lang-ar">كل نسخة تُجهَّز بشكل فردي خلال إجازة السوق. التشفير والتجهيز يستغرقان <strong>24–48 ساعة</strong> كحد أقصى بعد تأكيد الدفع.</span><span class="lang-en">Each copy is individually prepared during market break. Encryption takes <strong>24–48 hours</strong> max after payment confirmation.</span></p>
+        </div>
+        <div class="pdf-wrap reveal">
+            <a href="#" onclick="downloadPDF()" class="pdf-btn">📥 <span class="lang-ar">تحميل دليل المستخدم الكامل — PDF</span><span class="lang-en">Download Full User Manual — PDF</span></a>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">المميزات الحصرية</span><span class="lang-en">Exclusive Features</span></h2>
+            <div class="feat-grid">
+                <div class="feat-card reveal"><div class="feat-icon">🎯</div><div class="feat-title">16 Pattern Scanner</div><p><span class="lang-ar">مسح 16 نمط سعري مختلف (شمعي وبياني) في نفس الوقت لاختيار أقوى الإشارات.</span><span class="lang-en">Scanning 16 different candlestick and chart patterns simultaneously to pick the strongest signals.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">🔄</div><div class="feat-title">Break & Retest</div><p><span class="lang-ar">اكتشاف نمط Break & Retest الشهير بدقة عالية مع تحديد منطقة إعادة الاختبار.</span><span class="lang-en">Detect the famous Break & Retest pattern with high precision and retest zone identification.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">🛡️</div><div class="feat-title">Advanced Risk Mgmt</div><p><span class="lang-ar">Trailing Stop + Break Even تلقائي + وقف خسارة متحرك لحماية رأس المال.</span><span class="lang-en">Auto Trailing Stop + Breakeven + Moving Stop Loss to protect capital.</span></p></div>
+                <div class="feat-card reveal"><div class="feat-icon">📊</div><div class="feat-title">Probability Scoring</div><p><span class="lang-ar">نظام تقييم متطور يحسب احتمالية نجاح الإشارة بناءً على 8 عوامل مختلفة.</span><span class="lang-en">Advanced scoring system calculates signal success probability based on 8 different factors.</span></p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CODE SECTION (NEW) -->
+    <section class="code-section" id="code-section">
+        <div class="wrap">
+            <div class="code-header reveal">
+                <div class="code-badge"><i>⚙️</i> <span class="lang-ar">الكود المصدري الكامل</span><span class="lang-en">Complete Source Code</span></div>
+                <div class="code-badge"><i>📦</i> Goldex EA Dynamic v3.0</div>
+            </div>
+            <div class="code-container reveal">
+                <div class="code-title">
+                    <h3>Goldex_EA_Dynamic_v3.mq5</h3>
+                    <span>16 PATTERNS</span>
+                </div>
+                <div class="code-box" id="codeBox">
+                    <pre>
+//+------------------------------------------------------------------+
+//|                     Goldex EA Dynamic Pro                      |
+//|        Universal Robot - ALL Patterns - Any Symbol/Timeframe     |
+//|        Crypto / Forex / Gold / Indices - FULLY DYNAMIC           |
+//+------------------------------------------------------------------+
+//  PATTERNS INCLUDED:
+//  ── CANDLESTICK ──────────────────────────────────────────────────
+//  1.  Pin Bar / Hammer / Shooting Star
+//  2.  Engulfing (Bullish / Bearish)
+//  3.  Inside Bar
+//  4.  Outside Bar
+//  5.  Doji at Key Level
+//  6.  Tweezer Top / Bottom
+//  7.  Harami (Bullish / Bearish)
+//  8.  Morning Star / Evening Star
+//  9.  Three White Soldiers / Three Black Crows
+//  10. Dark Cloud Cover / Piercing Line
+//  ── CHART PATTERNS ───────────────────────────────────────────────
+//  11. Break & Retest
+//  12. Double Top / Double Bottom
+//  13. Head & Shoulders / Inverse H&S
+//  14. Bull Flag / Bear Flag
+//  15. Ascending Triangle / Descending Triangle
+//  16. Rising Wedge / Falling Wedge
+//+------------------------------------------------------------------+
+#property copyright "Goldex All Patterns Dynamic v3.0"
+#property version   "3.00"
+#property strict
+
+#include &lt;Trade\Trade.mqh&gt;
+#include &lt;Trade\PositionInfo.mqh&gt;
+
+CTrade        trade;
+CPositionInfo position;
+
+//+------------------------------------------------------------------+
+//| Enums                                                             |
+//+------------------------------------------------------------------+
+enum SYMBOL_TYPE { SYM_FOREX, SYM_CRYPTO, SYM_METAL, SYM_INDEX, SYM_UNKNOWN };
+
+//+------------------------------------------------------------------+
+//| Inputs                                                            |
+//+------------------------------------------------------------------+
+input group "════════ TRADING CONTROL ════════"
+input bool   EnableAutoTrading = true;
+input int    MagicNumber       = 20250315;
+input string TradeComment      = "Goldex v3";
+
+input group "════════ SIGNAL SETTINGS ════════"
+input int    MinProbability    = 55;   // Lower = more signals
+input int    MaxDailyTrades    = 15;
+
+input group "════════ CANDLESTICK PATTERNS ════════"
+input bool   TradePinBar       = true;   // Pin Bar / Hammer / Shooting Star
+input bool   TradeEngulfing    = true;   // Engulfing
+input bool   TradeInsideBar    = true;   // Inside Bar
+input bool   TradeOutsideBar   = true;   // Outside Bar
+input bool   TradeDoji         = true;   // Doji at Key Level
+input bool   TradeTweezer      = true;   // Tweezer Top/Bottom
+input bool   TradeHarami       = true;   // Harami
+input bool   TradeMorningStar  = true;   // Morning/Evening Star
+input bool   TradeSoldiersCrows= true;   // 3 Soldiers / 3 Crows
+input bool   TradeDarkCloud    = true;   // Dark Cloud / Piercing
+
+input group "════════ CHART PATTERNS ════════"
+input bool   TradeBreakRetest  = true;   // Break & Retest
+input bool   TradeDouble       = true;   // Double Top/Bottom
+input bool   TradeHS           = true;   // Head & Shoulders
+input bool   TradeFlag         = true;   // Bull/Bear Flag
+input bool   TradeTriangle     = true;   // Triangles
+input bool   TradeWedge        = true;   // Wedges
+
+input group "════════ SESSION FILTERS ════════"
+input bool   FilterBySession   = false;
+input bool   TradeAsian        = true;
+input bool   TradeLondon       = true;
+input bool   TradeNewYork      = true;
+
+input group "════════ CONFIRMATION ════════"
+input bool   UseMTFConfirmation= false;
+input ENUM_TIMEFRAMES ConfirmTF= PERIOD_H1;
+
+input group "════════ RISK MANAGEMENT ════════"
+input double RiskPercent       = 1.0;
+input double MaxDailyLoss      = 5.0;
+input double ATRMultSL         = 1.5;
+input double RRRatio           = 2.0;
+
+input group "════════ POSITION MANAGEMENT ════════"
+input bool   UseBreakeven      = true;
+input double BEvenTrigger      = 1.0;
+input double BEvenOffsetATR    = 0.3;
+input bool   UseTrailing       = true;
+input double TrailATR          = 1.2;
+input double TrailActivation   = 1.0;
+
+input group "════════ MONEY MANAGEMENT ════════"
+input bool   UseFixedLot       = false;
+input double FixedLot          = 0.01;
+input double MaxLot            = 5.0;
+input double MinLot            = 0.01;
+input int    MaxOpenPos        = 1;
+
+input group "════════ DYNAMIC PARAMS ════════"
+input int    SwingLookback     = 8;    // Bars each side for swing
+input int    ScanBars          = 50;   // How many bars to scan
+input double RetestATR         = 0.5;  // Retest zone width (ATR)
+input double DoubleTolATR      = 0.4;  // Double pattern tolerance (ATR)
+input double PinBarRatio       = 2.5;  // Wick/body ratio for pin bar
+input double MaxSpreadATR      = 0.25; // Max spread as ATR fraction
+
+input group "════════ DASHBOARD ════════"
+input bool   ShowDashboard     = true;
+input int    DashX             = 15;
+input int    DashY             = 25;
+input color  DashBg            = C'10,14,24';
+
+input group "════════ ALERTS ════════"
+input bool   EnableAlerts      = true;
+input bool   EnableSound       = true;
+input string SoundFile         = "alert.wav";
+
+input group "════════ ADVANCED ════════"
+input int    Slippage          = 50;
+
+//+------------------------------------------------------------------+
+//| Structures                                                        |
+//+------------------------------------------------------------------+
+struct TodayStats {
+    int    tradesOpened, tradesClosed, wins, losses;
+    double grossProfit, grossLoss, netProfit;
+    datetime date;
+};
+
+struct Signal {
+    bool   isValid;
+    int    type;           // ORDER_TYPE_BUY / SELL
+    double entry, sl, tp;
+    int    probability;
+    string pattern;
+    string category;       // "Candle" or "Chart"
+    int    strength;       // 1=weak 2=medium 3=strong
+    datetime time;
+};
+
+struct SwingPt {
+    double price;
+    int    bar;
+    bool   isHigh;
+};
+
+struct DynP {
+    SYMBOL_TYPE symType;
+    double atr14, atr50;
+    double pointValue, tickValue, tickSize;
+    double minVol, maxVol, stepVol;
+    double maxSpread;
+    int    digits;
+};
+
+// ... (باقي الكود - نسخة مختصرة للعرض) ...
+// الكود الكامل موجود في الملف الأصلي
+                    </pre>
+                </div>
+                <div class="code-footer">
+                    <div class="code-stats">
+                        <div><span>📊</span> 16 Pattern Functions</div>
+                        <div><span>📈</span> 2500+ Lines of Code</div>
+                        <div><span>🔧</span> MQL5 / MQL4</div>
+                    </div>
+                    <button class="code-copy" onclick="copyCode()">📋 <span class="lang-ar">نسخ الكود</span><span class="lang-en">Copy Code</span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCREENSHOTS -->
+    <section class="screenshots">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">صور النظام الحية</span><span class="lang-en">Live System Screenshots</span></h2>
+            <div class="ss-grid">
+                <div class="ss-card reveal"><div class="ss-img">📈 Break & Retest Signal</div><div class="ss-cap"><span class="lang-ar">إشارة Break & Retest مع احتمالية 75%</span><span class="lang-en">Break & Retest signal with 75% probability</span></div></div>
+                <div class="ss-card reveal"><div class="ss-img">📊 Dashboard Overview</div><div class="ss-cap"><span class="lang-ar">لوحة تحكم شاملة بجميع المعلومات</span><span class="lang-en">Comprehensive dashboard with all info</span></div></div>
+                <div class="ss-card reveal"><div class="ss-img">🔄 Double Top Pattern</div><div class="ss-cap"><span class="lang-ar">نموذج القمة المزدوجة مع كسر مستوى الدعم</span><span class="lang-en">Double Top pattern with support break</span></div></div>
+                <div class="ss-card reveal"><div class="ss-img">📱 Live Market Watch</div><div class="ss-cap"><span class="lang-ar">مراقبة حية للأسعار والسبريد</span><span class="lang-en">Live price and spread monitoring</span></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-wrap">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">كيف يعمل النظام؟</span><span class="lang-en">How Does It Work?</span></h2>
+            <div class="timeline">
+                <div class="tl-item reveal"><div class="tl-num">1</div><div class="tl-body"><h4><span class="lang-ar">مسح 16 نمط</span><span class="lang-en">Scan 16 Patterns</span></h4><p><span class="lang-ar">النظام يمسح جميع الأنماط الشمعية والبيانية ويخزن الإشارات المحتملة.</span><span class="lang-en">System scans all candlestick and chart patterns, storing potential signals.</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">2</div><div class="tl-body"><h4><span class="lang-ar">تقييم الاحتمالية</span><span class="lang-en">Probability Scoring</span></h4><p><span class="lang-ar">تقييم كل إشارة بناءً على 8 عوامل (الاتجاه، RSI، ATR، نسبة المخاطرة...).</span><span class="lang-en">Each signal scored based on 8 factors (trend, RSI, ATR, risk ratio...).</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">3</div><div class="tl-body"><h4><span class="lang-ar">اختيار الأفضل</span><span class="lang-en">Pick Best Signal</span></h4><p><span class="lang-ar">اختيار الإشارة ذات أعلى احتمالية للدخول إذا تجاوزت الحد الأدنى.</span><span class="lang-en">Select the highest probability signal if it exceeds minimum threshold.</span></p></div></div>
+                <div class="tl-item reveal"><div class="tl-num">4</div><div class="tl-body"><h4><span class="lang-ar">إدارة الصفقة</span><span class="lang-en">Trade Management</span></h4><p><span class="lang-ar">تفعيل Trailing Stop و Breakeven تلقائيًا لحماية الأرباح.</span><span class="lang-en">Auto Trailing Stop and Breakeven activation to protect profits.</span></p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="pricing">
+        <div class="wrap">
+            <h2 class="sec-title reveal"><span class="lang-ar">خطط الأسعار</span><span class="lang-en">Pricing Plans</span></h2>
+            <div class="coupon-sec reveal">
+                <h3>🎟️ <span class="lang-ar">لديك كود خصم؟</span><span class="lang-en">Have a Discount Code?</span></h3>
+                <div class="c-row">
+                    <input type="text" id="couponCode" placeholder="أدخل الكود / Enter code" maxlength="20">
+                    <button onclick="applyCoupon()"><span class="lang-ar">تطبيق</span><span class="lang-en">Apply</span></button>
+                </div>
+                <div id="cMsg" class="c-msg"></div>
+            </div>
+            <div class="p-grid">
+                <div class="p-card featured reveal" onclick="selectPkg('lifetime',this)">
+                    <div class="popular-tag">MOST POPULAR</div>
+                    <div class="p-title">💎 <span class="lang-ar">ترخيص مدى الحياة</span><span class="lang-en">Lifetime License</span></div>
+                    <div class="p-orig">$499</div>
+                    <div class="p-price">$<span id="lifetimeFinal">499</span><small> USDT</small></div>
+                    <ul class="p-feats">
+                        <li><span class="lang-ar">✅ نسخة مشفرة مدى الحياة</span><span class="lang-en">✅ Encrypted lifetime copy</span></li>
+                        <li><span class="lang-ar">✅ تحديثات مجانية للأبد</span><span class="lang-en">✅ Free updates forever</span></li>
+                        <li><span class="lang-ar">✅ دعم فني مميز 24/7</span><span class="lang-en">✅ Premium 24/7 support</span></li>
+                        <li><span class="lang-ar">✅ كلمة مرور سرية للتجديد</span><span class="lang-en">✅ Secret renewal password</span></li>
+                    </ul>
+                    <button class="sel-btn"><span class="lang-ar">اختر هذه الباقة ✓</span><span class="lang-en">Select This Plan ✓</span></button>
+                </div>
+                <div class="p-card reveal" onclick="selectPkg('monthly',this)">
+                    <div class="p-title">📅 <span class="lang-ar">اشتراك شهري</span><span class="lang-en">Monthly Subscription</span></div>
+                    <div class="p-orig">$79</div>
+                    <div class="p-price">$<span id="monthlyFinal">79</span><small> USDT/<span class="lang-ar">شهر</span><span class="lang-en">mo</span></small></div>
+                    <ul class="p-feats">
+                        <li><span class="lang-ar">✅ نسخة مشفرة لمدة شهر</span><span class="lang-en">✅ Encrypted 1-month copy</span></li>
+                        <li><span class="lang-ar">✅ تجديد تلقائي سهل</span><span class="lang-en">✅ Easy auto renewal</span></li>
+                        <li><span class="lang-ar">✅ دعم فني كامل</span><span class="lang-en">✅ Full technical support</span></li>
+                        <li><span class="lang-ar">✅ جميع المميزات مضمَّنة</span><span class="lang-en">✅ All features included</span></li>
+                    </ul>
+                    <button class="sel-btn"><span class="lang-ar">اختر هذه الباقة ✓</span><span class="lang-en">Select This Plan ✓</span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAYMENT FORM -->
+    <div class="wrap">
+        <div class="pay-wrap reveal">
+            <h2 class="sec-title"><span class="lang-ar">إتمام الطلب</span><span class="lang-en">Complete Your Order</span></h2>
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <div class="f-grid">
+                    <div class="f-group"><label><span class="lang-ar">الاسم الكامل *</span><span class="lang-en">Full Name *</span></label><input type="text" id="fullName" required placeholder="محمد أحمد"></div>
+                    <div class="f-group"><label><span class="lang-ar">البريد الإلكتروني *</span><span class="lang-en">Email *</span></label><input type="email" id="email" required placeholder="example@email.com"></div>
+                    <div class="f-group"><label><span class="lang-ar">رقم الواتساب *</span><span class="lang-en">WhatsApp *</span></label><input type="tel" id="phone" required placeholder="01065673301"></div>
+                    <div class="f-group"><label><span class="lang-ar">حساب التيليجرام</span><span class="lang-en">Telegram</span></label><input type="text" id="telegram" placeholder="@username"></div>
+                    <div class="f-group full"><label><span class="lang-ar">الباقة المختارة *</span><span class="lang-en">Selected Package *</span></label>
+                        <select id="selectedPackage" required>
+                            <option value=""><span class="lang-ar">-- اختر الباقة --</span><span class="lang-en">-- Select Package --</span></option>
+                            <option value="lifetime">💎 Lifetime License — $499</option>
+                            <option value="monthly">📅 Monthly Subscription — $79</option>
+                        </select>
+                    </div>
+                    <div class="f-group full"><label><span class="lang-ar">كود الخصم المُطبَّق</span><span class="lang-en">Applied Discount Code</span></label><input type="text" id="finalCoupon" readonly placeholder="—"></div>
+                </div>
+                <div class="wallet-box">
+                    <strong>🏦 USDT (TRC20)</strong>
+                    <div><span class="w-addr" id="walletAddr">TNaHXWFTxLPh64p1rG56NRLNzfP8UDVqws</span></div>
+                    <button type="button" class="copy-btn" onclick="copyWallet()">📋 <span class="lang-ar">نسخ العنوان</span><span class="lang-en">Copy Address</span></button>
+                </div>
+                <div class="steps-box">
+                    <p>📌 <span class="lang-ar">خطوات بعد الدفع:</span><span class="lang-en">Steps after payment:</span></p>
+                    <ol>
+                        <li><span class="lang-ar">حوِّل المبلغ إلى عنوان المحفظة أعلاه</span><span class="lang-en">Transfer the amount to the wallet address above</span></li>
+                        <li><span class="lang-ar">احتفظ بـ TXID (رقم العملية)</span><span class="lang-en">Keep the TXID (transaction hash)</span></li>
+                        <li><span class="lang-ar">اضغط زر تأكيد الطلب</span><span class="lang-en">Click the confirm order button below</span></li>
+                        <li><span class="lang-ar">تواصل معنا فورًا على الواتساب أو التيليجرام</span><span class="lang-en">Contact us immediately via WhatsApp or Telegram</span></li>
+                    </ol>
+                </div>
+                <button type="submit" class="sub-btn">✅ <span class="lang-ar">تأكيد الطلب</span><span class="lang-en">Confirm Order</span></button>
+            </form>
+            <div class="c-row2">
+                <a href="https://wa.me/201065673301" target="_blank" class="c-link wa">📱 WhatsApp: 01065673301</a>
+                <a href="https://t.me/Basemtp" target="_blank" class="c-link tg">✈️ Telegram: @Basemtp</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="wrap">
+            <p>© 2026 GOLDEX EA. <span class="lang-ar">جميع الحقوق محفوظة</span><span class="lang-en">All Rights Reserved</span></p>
+            <p>GOLDEX EA v3.0 | 16 Patterns | HFT System | XAUUSD</p>
+        </div>
+    </footer>
+
+    <script>
+    /* ─── LANG ─── */
+    function toggleLang(){
+        const b=document.body, isAr=b.classList.contains('ar');
+        b.classList.toggle('ar',!isAr); b.classList.toggle('en',isAr);
+        b.dir=isAr?'ltr':'rtl';
+    }
+
+    /* ─── DATA ─── */
+    const prices={lifetime:499,monthly:79};
+    let disc=0,couponUsed='';
+    const defCoupons=[
+        {code:'BASEM10',marketer:'Basem TP',discount:10,active:true},
+        {code:'AHMED20',marketer:'Ahmed Ali',discount:20,active:true},
+        {code:'MOHAMED15',marketer:'Mohamed Hassan',discount:15,active:true}
+    ];
+    let coupons=JSON.parse(localStorage.getItem('goldex_coupons')||'null')||defCoupons;
+    if(!localStorage.getItem('goldex_coupons')) localStorage.setItem('goldex_coupons',JSON.stringify(coupons));
+
+    /* ─── COUPON ─── */
+    function applyCoupon(){
+        const code=document.getElementById('couponCode').value.toUpperCase().trim();
+        const el=document.getElementById('cMsg');
+        const ar=document.body.classList.contains('ar');
+        if(!code){setMsg(el,ar?'❌ أدخل الكود':'❌ Enter a code',false);return;}
+        const f=coupons.find(c=>c.code===code&&c.active);
+        if(f){
+            disc=f.discount; couponUsed=f.code;
+            document.getElementById('lifetimeFinal').textContent=Math.round(prices.lifetime*(1-disc/100));
+            document.getElementById('monthlyFinal').textContent=Math.round(prices.monthly*(1-disc/100));
+            document.getElementById('finalCoupon').value=f.code;
+            setMsg(el,ar?`✅ خصم ${f.discount}% مطبَّق`:`✅ ${f.discount}% discount applied!`,true);
+        } else {
+            setMsg(el,ar?'❌ كود غير صالح':'❌ Invalid code',false);
+        }
+    }
+    function setMsg(el,t,ok){el.textContent=t;el.className='c-msg '+(ok?'ok':'err');}
+
+    /* ─── PKG SELECT ─── */
+    function selectPkg(pkg,el){
+        document.getElementById('selectedPackage').value=pkg;
+        document.querySelectorAll('.p-card').forEach(c=>c.style.outline='');
+        el.style.outline='2px solid var(--gold)';
+        setTimeout(()=>document.querySelector('.pay-wrap').scrollIntoView({behavior:'smooth',block:'start'}),350);
+    }
+
+    /* ─── ORDER ─── */
+    function submitOrder(e){
+        e.preventDefault();
+        const pkg=document.getElementById('selectedPackage').value;
+        const name=document.getElementById('fullName').value.trim();
+        const mail=document.getElementById('email').value.trim();
+        const ph=document.getElementById('phone').value.trim();
+        const tg=document.getElementById('telegram').value.trim();
+        const ar=document.body.classList.contains('ar');
+        if(!pkg){alert(ar?'اختر الباقة أولاً':'Please select a package');return;}
+        const final=(prices[pkg]*(1-disc/100)).toFixed(2);
+        const mkt=couponUsed?(coupons.find(c=>c.code===couponUsed)||{marketer:'Unknown'}).marketer:'Direct';
+        const id='ORD'+Date.now();
+        const order={id,date:new Date().toISOString(),customer:name,email:mail,phone:ph,telegram:tg,
+            package:pkg==='lifetime'?'Lifetime':'Monthly',originalPrice:prices[pkg],finalPrice:final,
+            discount:disc,couponCode:couponUsed||'None',marketer:mkt,status:'pending'};
+        const orders=JSON.parse(localStorage.getItem('goldex_orders')||'[]');
+        orders.push(order); localStorage.setItem('goldex_orders',JSON.stringify(orders));
+        alert(ar?`✅ تم استلام طلبك!\nرقم الطلب: ${id}\nالمبلغ: $${final} USDT\nسنتواصل معك قريباً ✓`
+                 :`✅ Order received!\nID: ${id}\nAmount: $${final} USDT\nWe'll contact you shortly ✓`);
+        const wMsg=encodeURIComponent(`🆕 New Order: ${id}\n👤 ${name}\n📦 ${order.package}\n💵 $${final} USDT\n📱 ${ph}${tg?'\n✈️ '+tg:''}`);
+        window.open(`https://wa.me/201065673301?text=${wMsg}`,'_blank');
+        resetForm();
+    }
+    function resetForm(){
+        document.getElementById('orderForm').reset();
+        document.getElementById('finalCoupon').value='';
+        disc=0; couponUsed='';
+        document.getElementById('lifetimeFinal').textContent=prices.lifetime;
+        document.getElementById('monthlyFinal').textContent=prices.monthly;
+        document.getElementById('cMsg').textContent='';
+        document.querySelectorAll('.p-card').forEach(c=>c.style.outline='');
+    }
+
+    /* ─── WALLET COPY ─── */
+    function copyWallet(){
+        const addr=document.getElementById('walletAddr').textContent;
+        const ar=document.body.classList.contains('ar');
+        navigator.clipboard.writeText(addr)
+            .then(()=>alert(ar?'✅ تم نسخ العنوان':'✅ Address copied'))
+            .catch(()=>prompt('Copy manually:',addr));
+    }
+
+    /* ─── CODE COPY ─── */
+    function copyCode(){
+        const code=document.getElementById('codeBox').innerText;
+        const ar=document.body.classList.contains('ar');
+        navigator.clipboard.writeText(code)
+            .then(()=>alert(ar?'✅ تم نسخ الكود':'✅ Code copied'))
+            .catch(()=>alert(ar?'❌ فشل النسخ':'❌ Copy failed'));
+    }
+
+    function downloadPDF(){window.open('GOLDEX_EA_Manual.pdf','_blank');}
+    function scrollTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+
+    /* ─── SCROLL REVEAL ─── */
+    const io=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}});
+    },{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>GOLDEX EA — نظام التداول الاحترافي فائق السرعة HFT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Cinzel:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
